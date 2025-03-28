@@ -1,9 +1,27 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { RoomEntity } from './room/room.entity';
+import { RoomModule } from './room/room.module';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWD,
+      database: process.env.DB_NAME,
+      entities: [RoomEntity],
+      synchronize: true,
+    }),
+    RoomModule
+    
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
