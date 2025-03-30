@@ -1,5 +1,5 @@
-
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { PlayerEntity } from './players.entity';
 
 @Entity()
 export class RoomEntity {
@@ -7,8 +7,11 @@ export class RoomEntity {
   id: number;
 
   @Column()
-  name: string;
+  createdAt: Date;
 
   @Column()
   code: string;
+
+  @OneToMany(() => PlayerEntity, (player) => player.room)
+  players: PlayerEntity[];
 }

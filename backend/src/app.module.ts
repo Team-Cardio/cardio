@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { PlayerEntity } from './room/players.entity';
 import { RoomEntity } from './room/room.entity';
 import { RoomModule } from './room/room.module';
 
@@ -16,13 +15,10 @@ import { RoomModule } from './room/room.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWD,
       database: process.env.DB_NAME,
-      entities: [RoomEntity],
+      entities: [RoomEntity, PlayerEntity],
       synchronize: true,
     }),
     RoomModule
-    
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

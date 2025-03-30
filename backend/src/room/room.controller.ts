@@ -1,6 +1,6 @@
 import { Controller, Param, Post } from '@nestjs/common';
+import { ApiParam } from '@nestjs/swagger';
 import { RoomService } from './room.service';
-import { ApiParam, ApiProperty } from '@nestjs/swagger';
 
 @Controller('room')
 export class RoomController {
@@ -10,22 +10,23 @@ export class RoomController {
   async create(): Promise<string> {
     const code = this.roomService.create();
 
-    console.log(`Created a room with code ${code}`)
+    console.log(`Created a room with code ${code}`);
 
     return code;
   }
 
   @Post('/join/:code')
-  @ApiParam({name: 'code', required:true, type: 'string'})
-    async join(@Param() params: {code: string}): Promise<boolean> {
-    const {code} = params;
+  @ApiParam({ name: 'code', required: true, type: 'string' })
+  async join(@Param() params: { code: string }): Promise<boolean> {
+    const { code } = params;
 
-    const success = await this.roomService.join(code)
+    const playerId = 123; // TODO
+    const success = await this.roomService.join(playerId, code);
 
     if (success) {
       console.log(`Joined room ${code}`);
     } else {
-      console.log(`Failed joining room ${code}`)
+      console.log(`Failed joining room ${code}`);
     }
 
     return success;
