@@ -12,10 +12,13 @@ export default function HomeScreen({ navigation }: Props) {
     return (
         <View style={styles.container}>
             <View style={[styles.buttonContainer, isNarrow ? {} : styles.desktopButtonContainer]}>
-                <Button title="Host" onPress={() => navigation.navigate('Host')} />
+                <Button title="Create a Room" onPress={() => navigation.navigate('CreateRoomSettings')} />
             </View>
             <View style={[styles.buttonContainer, isNarrow ? {} : styles.desktopButtonContainer]}>
-                <Button title="Player" onPress={() => navigation.navigate('Player')} />
+                <Button title="Rejoin as a Host" onPress={() => navigation.navigate('HostJoinCodeScreen')} />
+            </View>
+            <View style={[styles.buttonContainer, isNarrow ? {} : styles.desktopButtonContainer]}>
+                <Button title="Join as a Player" onPress={() => navigation.navigate('PlayerJoinCodeScreen')} />
             </View>
         </View>
     );
