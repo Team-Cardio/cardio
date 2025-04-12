@@ -6,7 +6,9 @@ import HostScreen from '../screens/HostScreen';
 import PlayerTabNavigator from './PlayerTabNavigator';
 import { RootStackParamList } from '../types/navigation';
 import { LinkingOptions, NavigationContainer } from '@react-navigation/native';
-import PlayerInviteCode from '../screens/PlayerInviteCodeScreen';
+import PlayerJoinCodeScreen from '../screens/PlayerJoinCodeScreen';
+import HostJoinCodeScreen from '../screens/HostJoinCodeScreen';
+import CreateRoomSettings from '../screens/CreateRoomSettings';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -14,8 +16,9 @@ const config = {
     path: 'app',
     screens: {
         Home: 'home',
-        Host: 'host',
-        PlayerInviteCode: 'player/invite',
+        Host: 'host/:code',
+        PlayerJoinCode: 'player/join',
+        HostJoinCode: "host/join",
         Player: {
             path: 'player/:code',
             screens: {
@@ -42,7 +45,9 @@ export default function RootNavigator() {
                 <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="Host" component={HostScreen} />
                 <Stack.Screen name="Player" component={PlayerTabNavigator} options={{ headerShown: false }} />
-                <Stack.Screen name="PlayerInviteCode" component={PlayerInviteCode} options={{ headerShown: false }} />
+                <Stack.Screen name="PlayerJoinCodeScreen" component={PlayerJoinCodeScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="HostJoinCodeScreen" component={HostJoinCodeScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="CreateRoomSettings" component={CreateRoomSettings} options={{ headerShown: false }} />
             </Stack.Navigator>
         </ NavigationContainer>
     );

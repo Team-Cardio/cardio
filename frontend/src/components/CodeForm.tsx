@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import GoHomeButton from '../components/GoHomeButton';
+import { useNavigation } from '@react-navigation/native';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'PlayerInviteCode'>;
 
-export default function PlayerInviteCode({ navigation }: Props) {
+type CodeFormProps = { title: string, navigate: (code: string) => void };
+
+
+export default function CodeForm({ title, navigate }: CodeFormProps) {
     const [code, setCode] = useState<string>("");
 
     return (
         <View style={styles.container}>
+            <Text style={styles.text}>{title}</Text>
             <Text style={styles.text}>Enter room code</Text>
             <View style={styles.inputContainer}>
                 <TextInput value={code} onChangeText={setCode} style={styles.input} autoCapitalize="none" placeholder="Enter code" />
             </View>
 
-            <Button title='confirm' onPress={() => navigation.navigate("Player", { code })} />
+            <Button title='confirm' onPress={() => navigate(code)} />
 
             <View style={{ marginTop: 20 }}>
                 <GoHomeButton title='Go back' />

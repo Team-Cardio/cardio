@@ -1,8 +1,10 @@
 export type RootStackParamList = {
     Home: undefined;
-    Host: undefined;
+    Host: { code: string };
+    HostJoinCodeScreen: undefined;
+    CreateRoomSettings: undefined;
     Player: { code: string };
-    PlayerInviteCode: undefined
+    PlayerJoinCodeScreen: undefined
 };
 
 export type PlayerTabParamList = {

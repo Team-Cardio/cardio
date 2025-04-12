@@ -6,10 +6,12 @@ import GoHomeButton from '../components/GoHomeButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Host'>;
 
-export default function HostScreen({ navigation }: Props) {
+export default function HostScreen({ route }: Props) {
+    const code = route.params.code;
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Host Screen</Text>
+            <Text style={styles.text}>Room code {code} </Text>
             <GoHomeButton />
         </View>
     );
