@@ -6,6 +6,7 @@ import HostScreen from '../screens/HostScreen';
 import PlayerTabNavigator from './PlayerTabNavigator';
 import { RootStackParamList } from '../types/navigation';
 import { LinkingOptions, NavigationContainer } from '@react-navigation/native';
+import PlayerInviteCode from '../screens/PlayerInviteCodeScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -14,11 +15,13 @@ const config = {
     screens: {
         Home: 'home',
         Host: 'host',
+        PlayerInviteCode: 'player/invite',
         Player: {
+            path: 'player/:code',
             screens: {
-                Tab1: 'player/tab1',
-                Tab2: 'player/tab2',
-                Tab3: 'player/tab3'
+                Tab1: 'tab1',
+                Tab2: 'tab2',
+                Tab3: 'tab3'
             }
         },
     },
@@ -39,6 +42,7 @@ export default function RootNavigator() {
                 <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="Host" component={HostScreen} />
                 <Stack.Screen name="Player" component={PlayerTabNavigator} options={{ headerShown: false }} />
+                <Stack.Screen name="PlayerInviteCode" component={PlayerInviteCode} options={{ headerShown: false }} />
             </Stack.Navigator>
         </ NavigationContainer>
     );

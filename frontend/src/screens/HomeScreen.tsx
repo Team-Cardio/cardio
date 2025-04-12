@@ -15,7 +15,7 @@ export default function HomeScreen({ navigation }: Props) {
                 <Button title="Host" onPress={() => navigation.navigate('Host')} />
             </View>
             <View style={[styles.buttonContainer, isNarrow ? {} : styles.desktopButtonContainer]}>
-                <Button title="Player" onPress={() => navigation.navigate('Player')} />
+                <Button title="Player" onPress={() => navigation.navigate('PlayerInviteCode')} />
             </View>
         </View>
     );

@@ -6,12 +6,14 @@ import { RootStackParamList } from '../types/navigation';
 
 type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
-function GoHomeButton() {
+type GoHomeButton = { title?: string };
+
+function GoHomeButton({ title = "Go to Home Screen" }: GoHomeButton) {
     const navigation = useNavigation<HomeNavigationProp>();
 
     return (
         <Button
-            title="Go to Home"
+            title={title}
             onPress={() =>
                 navigation.reset({
                     index: 0,

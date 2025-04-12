@@ -1,11 +1,12 @@
 export type RootStackParamList = {
     Home: undefined;
     Host: undefined;
-    Player: undefined;
+    Player: { code: string };
+    PlayerInviteCode: undefined
 };
 
 export type PlayerTabParamList = {
-    Tab1: undefined;
-    Tab2: undefined;
-    Tab3: undefined;
+    Tab1: { code: string };
+    Tab2: { code: string };
+    Tab3: { code: string };
 };
