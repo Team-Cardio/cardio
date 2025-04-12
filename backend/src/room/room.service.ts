@@ -44,4 +44,14 @@ export class RoomService {
     const room = await this.roomRepository.delete({ code });
     return room != null;
   }
+
+  async getRoomPlayers(code: string): Promise<PlayerEntity[]> {
+    const room = await this.roomRepository.findOne({
+      where: { code },
+      relations: ['players'],
+    });
+    if (room == null) return [];
+
+    return room.players;
+  }
 }
