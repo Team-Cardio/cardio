@@ -1,29 +1,34 @@
-import { Injectable } from "@nestjs/common";
-import { Server } from "socket.io";
-import { Card } from "src/types/card";
+import { Injectable } from '@nestjs/common';
+import { Server } from 'socket.io';
+import { Card } from 'src/types/enums/card.enum';
 
 @Injectable()
 export class RoomPublisher {
-    private server: Server;
+  private server: Server;
 
   setServer(server: Server) {
-    this.server = server;   
-    }
+    this.server = server;
+  }
 
   emitToRoom(roomCode: string, event: string, payload: any) {
     this.server.to(roomCode).emit(event, payload);
   }
 
-  emitToPlayer(roomCode: string, playerId: number, event: string, payload: any) {
+  emitToPlayer(
+    roomCode: string,
+    playerId: number,
+    event: string,
+    payload: any,
+  ) {
     this.server.to(`player-${playerId}`).emit(event, payload);
   }
 
   revealCard(roomCode: string, card: Card) {
-    this.emitToRoom(roomCode, 'card-revealed', {card});
+    this.emitToRoom(roomCode, 'card-revealed', { card });
   }
 
   dealHands(roomCode: string, playerId: number, cards: Card[]) {
-    this.emitToPlayer(roomCode, playerId, 'deal-hand', {cards});
+    this.emitToPlayer(roomCode, playerId, 'deal-hand', { cards });
   }
 
   newRound(roomCode: string, roundData: any) {

@@ -10,6 +10,5 @@ import { RoomGateway } from './room.gateway';
   imports: [TypeOrmModule.forFeature([RoomEntity, PlayerEntity])],
   controllers: [RoomController],
   providers: [RoomService, RoomGateway],
-  
 })
 export class RoomModule {}

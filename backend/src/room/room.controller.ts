@@ -17,7 +17,9 @@ export class RoomController {
 
   @Post('/join/:code')
   @ApiParam({ name: 'code', required: true, type: 'string' })
-  async join(@Param() params: { code: string }): Promise<{ success: boolean; playerId: number }> {
+  async join(
+    @Param() params: { code: string },
+  ): Promise<{ success: boolean; playerId: number }> {
     const { code } = params;
 
     const playerId = Math.floor(Math.random() * 1000000); // Simulate a player ID for testing
