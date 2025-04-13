@@ -4,16 +4,25 @@ import { RoomService } from "./room.service";
 
 
 @WebSocketGateway({ namespace: '/ws/game', cors: true })
-export class GameGateway {
+
+export class RoomGateway {
   @WebSocketServer() server: Server;
 
   constructor(private readonly roomService: RoomService) {}
+
+  handleConnection(client: Socket) {
+    console.log('[Gateway] Client connected:', client.id);
+  }
+  handleDisconnect(client: Socket) {
+    console.log('[Gateway] Client disconnected:', client.id);
+  }
 
   @SubscribeMessage('join-room')
   async handleJoinRoom(
     @MessageBody() data: { code: string; playerId: number },
     @ConnectedSocket() client: Socket,
   ) {
+    console.log(`Player ${data.playerId} is trying to join room ${data.code}`);
     const roomExists = await this.roomService.join(data.playerId, data.code);
     if (!roomExists) {
       client.emit('error', 'Room not found');
