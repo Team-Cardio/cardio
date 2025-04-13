@@ -17,10 +17,10 @@ export class RoomController {
 
   @Post('/join/:code')
   @ApiParam({ name: 'code', required: true, type: 'string' })
-  async join(@Param() params: { code: string }): Promise<boolean> {
+  async join(@Param() params: { code: string }): Promise<{ success: boolean; playerId: number }> {
     const { code } = params;
 
-    const playerId = 123; // TODO
+    const playerId = Math.floor(Math.random() * 1000000); // Simulate a player ID for testing
     const success = await this.roomService.join(playerId, code);
 
     if (success) {
@@ -29,6 +29,6 @@ export class RoomController {
       console.log(`Failed joining room ${code}`);
     }
 
-    return success;
+    return { success: success, playerId: playerId };
   }
 }

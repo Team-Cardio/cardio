@@ -35,17 +35,6 @@ export class RoomGateway {
     const players = await this.roomService.getRoomPlayers(data.code);
     this.server.to(data.code).emit('room-update', { players });
   }
-
-  @SubscribeMessage('player-action')
-  handlePlayerAction(
-    @MessageBody() data: { action: string; playerId: number; roomCode: string },
-    @ConnectedSocket() client: Socket,
-  ) {
-    const { action, playerId, roomCode } = data;
-
-    // Broadcast the action to all players in the room
-    this.server.to(roomCode).emit('player-action', { action, playerId });
-  }
   @SubscribeMessage('leave-room')
   async handleLeaveRoom(
     @MessageBody() data: { code: string; playerId: number },
@@ -56,5 +45,36 @@ export class RoomGateway {
 
     const players = await this.roomService.getRoomPlayers(data.code);
     this.server.to(data.code).emit('room-update', { players });
+  }
+
+  @SubscribeMessage('bet')
+  async handleBet(
+    @MessageBody() data: { code: string; playerId: number; amount: number },
+    @ConnectedSocket() client: Socket,
+  ) {
+    console.log(`Player ${data.playerId} placed a bet of ${data.amount} in room ${data.code}`);
+    // Handle the bet logic here
+    this.server.to(data.code).emit('bet-update', { playerId: data.playerId, amount: data.amount });
+  }
+
+  // emitting events from the server to the client
+  @SubscribeMessage('fold')
+  async handleFold(
+    @MessageBody() data: { code: string, playerId: number},
+    @ConnectedSocket() client: Socket,
+  ) {
+    console.log(`Player ${data.playerId} folded in room ${data.code}`);
+    //Logic
+    this.server.to(data.code).emit('fold-update', {playerId: data.playerId});
+  }
+
+  @SubscribeMessage('check')
+  async handleCheck(
+    @MessageBody() data: { code: string, playerId: number},
+    @ConnectedSocket() client: Socket,
+  ) {
+    console.log(`Player ${data.playerId} checked in room ${data.code}`);
+    //Logic
+    this.server.to(data.code).emit('check-update', {playerId: data.playerId});
   }
 }
