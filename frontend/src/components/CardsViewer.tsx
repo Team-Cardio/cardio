@@ -13,11 +13,11 @@ export default function CardViewer({ imgSource }: Props) {
 
 const styles = StyleSheet.create({
   image: {
-    width: 180,
-    height: 250,
+    width: 160,
+    height: 220,
     margin: 3,
     resizeMode: 'contain',
-    borderRadius: 10,
+    borderRadius: 18,
     borderColor: 'black',
     borderWidth: 2,
   },

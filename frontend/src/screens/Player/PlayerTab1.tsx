@@ -10,7 +10,7 @@ import CardViewer from '@/src/components/CardsViewer';
 const CardBackImage = require('@/assets/images/cards/back/back_2.png');
 const Card2SpadeImage = require('@/assets/images/cards/front/spade-2.png');
 const Card3HeartImage = require('@/assets/images/cards/front/heart-3.png');
-const ChipsImage = require('@/assets/images/chips.png');
+const ChipsImage = require('@/assets/images/chips/chips.png');
 
 type Props = BottomTabScreenProps<PlayerTabParamList, 'Tab1'>;
 
@@ -27,7 +27,7 @@ export default function PlayerTab1({ route }: Props) {
             </View>
             <GoHomeButton />
             <View style={styles.cardsContainer}>
-                <CardViewer imgSource={Card2SpadeImage} />
+                <CardViewer imgSource={CardBackImage} />
                 <CardViewer imgSource={Card3HeartImage} />
             </View>
         </View>
@@ -41,15 +41,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerContainer: {
-        height: 50,
+        height: 40,
         flexDirection: 'row',
         width: "100%",
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#007aff',
+        backgroundColor: 'white',
     },
     text: {
-        color: "white",
+        color: 'gray',
         margin: 5,
         fontSize: 20,
     },
