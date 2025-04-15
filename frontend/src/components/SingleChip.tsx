@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { type ImageSource } from 'expo-image';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -7,27 +6,27 @@ type Props = {
   chipSource: ImageSource;
 };
 
-export default function Chip({ chipSource }: Props) {
-  const [chosenChip, setChosedChip] = useState(false);
-  const [chipSize, setChipSize] = useState(100);
+export default function SingleChip({ chipSource }: Props) {
+  const chosenChip = useSharedValue(false);
+  const chipSize = useSharedValue(100);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(400);
 
   const doubleTap = Gesture.Tap()
     .numberOfTaps(1)
     .onStart(() => {
-      if (chosenChip) {
-        setChipSize(chipSize / 1.2);
+      if (chosenChip.value) {
+        chipSize.value = chipSize.value / 1.2;
       } else {
-        setChipSize(chipSize * 1.2);
+        chipSize.value = chipSize.value * 1.2;
       }
-      setChosedChip(!chosenChip);
+      chosenChip.value = !chosenChip.value;
     });
 
   const imageStyle = useAnimatedStyle(() => {
     return {
-      width: withSpring(chipSize),
-      height: withSpring(chipSize),
+      width: withSpring(chipSize.value),
+      height: withSpring(chipSize.value),
     };
   });
 

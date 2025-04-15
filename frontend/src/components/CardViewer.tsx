@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
       (Dimensions.get('window').height * 0.5 * 0.5)
     ),
     aspectRatio: 0.73,
-    margin: 3,
+    margin: 2,
     borderColor: 'black',
     borderRadius: 18,
     borderWidth: 1,

@@ -1,19 +1,19 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import GoHomeButton from '../../components/GoHomeButton'
 import { PlayerTabParamList } from '@/src/types/navigation';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import ChipsViewer from '@/src/components/ChipsViewer';
+import GoHomeButton from '@/src/components/GoHomeButton'
 import CardViewer from '@/src/components/CardViewer';
 import AddChipButton from '@/src/components/AddChipButton';
-import Chip from '@/src/components/Chip';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import SingleChip from '@/src/components/SingleChip';
+
 
 const CardBackImage = require('@/assets/images/cards/back/back_4.png');
 const Card2SpadeImage = require('@/assets/images/cards/front/spade-2.png');
 const Card3HeartImage = require('@/assets/images/cards/front/heart-3.png');
-const ChipsImage = require('@/assets/images/chips/chips.png');
+const Card10HeartImage = require('@/assets/images/cards/front/heart-10.png');
 
 const Chip1 = require('@/assets/images/chips/chip_1.png');
 const Chip5 = require('@/assets/images/chips/chip_5.png');
@@ -34,14 +34,13 @@ export default function PlayerTab1({ route }: Props) {
                 <AddChipButton />
             </View>
             <View style={styles.chipsContainer}>
-                {/* <ChipsViewer imgSource={ChipsImage} /> */}
-                <Chip chipSource={Chip5}/>
-                <Chip chipSource={Chip25}/>
-                <Chip chipSource={Chip25}/>
+                <SingleChip chipSource={Chip5}/>
+                <SingleChip chipSource={Chip1}/>
+                <SingleChip chipSource={Chip25}/>
             </View>
             <View style={styles.cardsContainer}>
                 <CardViewer frontImg={Card2SpadeImage} backImg={CardBackImage} />
-                <CardViewer frontImg={Card3HeartImage} backImg={CardBackImage} />
+                <CardViewer frontImg={Card10HeartImage} backImg={CardBackImage} />
             </View>
         </GestureHandlerRootView>
     );
@@ -73,6 +72,7 @@ const styles = StyleSheet.create({
     },
     chipsContainer: {
         flex: 1,
+        flexDirection: 'row',
     },
     cardsContainer: {
         flex: 1,

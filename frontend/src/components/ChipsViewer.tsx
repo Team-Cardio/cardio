@@ -14,9 +14,9 @@ export default function ChipsViewer({ imgSource }: Props) {
 const styles = StyleSheet.create({
   image: {
     flex: 1,
-    width: 300,
-    height: 300,
-    margin: 3,
+    width: 400,
+    height: 400,
+    margin: 20,
     resizeMode: 'contain',
   },
 });
