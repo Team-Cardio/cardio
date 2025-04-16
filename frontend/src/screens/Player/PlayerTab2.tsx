@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
+import RankingsViewer from '@/src/components/RankingsViewer';
+
 export default function PlayerTab1() {
     return (
         <View style={styles.container}>
-            <Text>Player Tab 2</Text>
+            <RankingsViewer/>
         </View>
     );
 }
