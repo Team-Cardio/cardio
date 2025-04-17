@@ -1,15 +1,20 @@
 import React, { useState, useRef } from 'react';
 import { StyleSheet, Dimensions, TouchableOpacity, Animated } from 'react-native';
-import { type ImageSource } from 'expo-image';
+import { type Suit, type Rank, type Back } from '@/src/types/cards';
+import { cardBackMap, cardMap } from '@/src/components/CardMap';
 
 type Props = {
-  frontImg: ImageSource;
-  backImg: ImageSource;
+  suit: Suit;
+  rank: Rank;
+  back: Back;
 };
 
-export default function CardViewer({ frontImg, backImg }: Props) {
+export default function CardViewer({ suit, rank, back }: Props) {
   const [showCardFront, setShowCardFront] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  const cardImageFront = cardMap[suit]?.[rank];
+  const cardImageBack = cardBackMap[back];
 
   const handleCardSwitch = () => {
     Animated.timing(fadeAnim, {
@@ -32,7 +37,7 @@ export default function CardViewer({ frontImg, backImg }: Props) {
       style={styles.cardContainer}
     >
       <Animated.Image
-        source={showCardFront ? frontImg : backImg}
+        source={showCardFront ? cardImageFront : cardImageBack}
         style={[styles.image, { opacity: fadeAnim }]}
         resizeMode={"contain"}
       />
@@ -49,7 +54,7 @@ const styles = StyleSheet.create({
     aspectRatio: 0.73,
     margin: 2,
     borderColor: 'black',
-    borderRadius: 18,
+    borderRadius: "9%",
     borderWidth: 1,
   },
   image: {

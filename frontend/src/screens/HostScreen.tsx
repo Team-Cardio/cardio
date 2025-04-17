@@ -1,23 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
+import { RootStackParamList } from '@/src/types/navigation';
 
-import GoHomeButton from '../components/GoHomeButton';
-import CardViewer from '../components/CardViewer';
-import ChipsViewer from '../components/ChipsViewer';
-
-const CardBackImage = require('@/assets/images/cards/back/back_4.png');
-const Card2SpadeImage = require('@/assets/images/cards/front/spade-2.png');
-const Card3HeartImage = require('@/assets/images/cards/front/heart-3.png');
-const Card10HeartImage = require('@/assets/images/cards/front/heart-10.png');
-const CardAHeartImage = require('@/assets/images/cards/front/heart-A.png');
-const CardASpadeImage = require('@/assets/images/cards/front/spade-A.png');
+import GoHomeButton from '@/src/components/GoHomeButton';
+import CardViewer from '@/src/components/CardViewer';
+import ChipsViewer from '@/src/components/ChipsViewer';
 
 const Chips = require('@/assets/images/chips/chips.png');
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Host'>;
-
 
 export default function PlayerTab1({ route }: Props) {
   const roomCode = route.params.code;
@@ -32,11 +24,11 @@ export default function PlayerTab1({ route }: Props) {
       </View>
       <View style={styles.main}>
         <View style={styles.cardsContainer}>
-          <CardViewer frontImg={Card2SpadeImage} backImg={CardBackImage} />
-          <CardViewer frontImg={CardAHeartImage} backImg={CardBackImage} />
-          <CardViewer frontImg={Card10HeartImage} backImg={CardBackImage} />
-          <CardViewer frontImg={Card3HeartImage} backImg={CardBackImage} />
-          <CardViewer frontImg={CardASpadeImage} backImg={CardBackImage} />
+          <CardViewer suit='heart' rank='2' back='tcs' />
+          <CardViewer suit='spade' rank='7' back='tcs' />
+          <CardViewer suit='diamond' rank='9' back='tcs' />
+          <CardViewer suit='club' rank='5' back='tcs' />
+          <CardViewer suit='club' rank='A' back='tcs' />
         </View>
         <View style={styles.chipsContainer}>
           <ChipsViewer imgSource={Chips} />
