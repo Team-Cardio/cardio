@@ -1,5 +1,5 @@
-import { Injectable } from "@nestjs/common";
-import { GameManager } from "./game-manager";
+import { Injectable } from '@nestjs/common';
+import { GameManager } from './game-manager';
 
 @Injectable()
 export class EngineService {
