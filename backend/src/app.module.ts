@@ -18,7 +18,7 @@ import { RoomModule } from './room/room.module';
       entities: [RoomEntity, PlayerEntity],
       synchronize: true,
     }),
-    RoomModule
+    RoomModule,
   ],
 })
 export class AppModule {}
