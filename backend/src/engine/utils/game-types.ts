@@ -1,6 +1,6 @@
 export type gameType = 'poker';
 
 export type gamePlayer = {
-  id: string;
+  id: number;
   name: string;
 };

@@ -20,3 +20,11 @@ export type PokerGameState = {
   winner: PokerPlayer | null;
   deck: Card[];
 };
+
+export type PokerGameAction =
+  | 'bet'
+  | 'call'
+  | 'raise'
+  | 'fold'
+  | 'check'
+  | 'allIn'
