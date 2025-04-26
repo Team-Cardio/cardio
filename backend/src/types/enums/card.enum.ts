@@ -5,7 +5,6 @@ export enum Color {
     CLUB,
   }
   export enum Rank {
-    ACE,
     TWO,
     THREE,
     FOUR,
@@ -18,4 +17,5 @@ export enum Color {
     JACK,
     QUEEN,
     KING,
+    ACE,
   }
