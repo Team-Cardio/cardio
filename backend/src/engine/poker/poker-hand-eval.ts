@@ -15,9 +15,9 @@ export class PokerHandEval {
 
     if (isFlush && isStraight) {
       if (cards.some((card) => card.rank === Rank.ACE)) {
-        return 'RoyalFlush';
+        return PokerHand.RoyalFlush;
       }
-      return 'StraightFlush';
+      return PokerHand.StraightFlush;
     }
 
     const rankCount = new Map<Rank, number>();
@@ -32,28 +32,28 @@ export class PokerHandEval {
     const isOnePair = counts[0] === 2 && counts[1] === 1;
 
     if (isFourOfAKind) {
-      return 'FourOfAKind';
+      return PokerHand.FourOfAKind;
     }
     if (isFullHouse) {
-      return 'FullHouse';
+      return PokerHand.FullHouse;
     }
     if (isFlush) {
-      return 'Flush';
+      return PokerHand.Flush;
     }
     if (isStraight) {
-      return 'Straight';
+      return PokerHand.Straight;
     }
     if (isThreeOfAKind) {
-      return 'ThreeOfAKind';
+      return PokerHand.ThreeOfAKind;
     }
     if (isTwoPair) {
-      return 'TwoPair';
+      return PokerHand.TwoPair;
     }
     if (isOnePair) {
-      return 'OnePair';
+      return PokerHand.OnePair;
     }
 
-    return 'HighCard';
+    return PokerHand.HighCard;
   }
 
   private static isStraight(cards: Card[]): boolean {
