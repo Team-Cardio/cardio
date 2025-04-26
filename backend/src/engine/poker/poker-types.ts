@@ -27,7 +27,7 @@ export type PokerGameAction =
   | 'raise'
   | 'fold'
   | 'check'
-  | 'allIn'
+  | 'allIn';
 
 export type PokerHand =
   | 'HighCard'

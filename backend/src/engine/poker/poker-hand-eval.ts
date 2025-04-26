@@ -1,6 +1,6 @@
-import { Card } from "src/types/card";
-import { Color, Rank } from "src/types/enums/card.enum";
-import { PokerHand } from "./poker-types";
+import { Card } from 'src/types/card';
+import { Rank } from 'src/types/enums/card.enum';
+import { PokerHand } from './poker-types';
 
 export class PokerHandEval {
   static evaluateHand(hand: Card[], communityCards: Card[]): PokerHand {
@@ -9,16 +9,15 @@ export class PokerHandEval {
     return handRank;
   }
 
-
   private static getHandRank(cards: Card[]): PokerHand {
     const isFlush = this.isFlush(cards);
     const isStraight = this.isStraight(cards);
 
     if (isFlush && isStraight) {
       if (cards.some((card) => card.rank === Rank.ACE)) {
-        return "RoyalFlush";
+        return 'RoyalFlush';
       }
-      return "StraightFlush";
+      return 'StraightFlush';
     }
 
     const rankCount = new Map<Rank, number>();
@@ -33,28 +32,28 @@ export class PokerHandEval {
     const isOnePair = counts[0] === 2 && counts[1] === 1;
 
     if (isFourOfAKind) {
-      return "FourOfAKind";
+      return 'FourOfAKind';
     }
     if (isFullHouse) {
-      return "FullHouse";
+      return 'FullHouse';
     }
     if (isFlush) {
-      return "Flush";
+      return 'Flush';
     }
-    if (isStraight) {       
-        return "Straight";
+    if (isStraight) {
+      return 'Straight';
     }
     if (isThreeOfAKind) {
-      return "ThreeOfAKind";
+      return 'ThreeOfAKind';
     }
     if (isTwoPair) {
-      return "TwoPair";
+      return 'TwoPair';
     }
     if (isOnePair) {
-      return "OnePair";
+      return 'OnePair';
     }
 
-    return "HighCard";
+    return 'HighCard';
   }
 
   private static isStraight(cards: Card[]): boolean {
@@ -68,7 +67,9 @@ export class PokerHandEval {
   }
 
   private static isFlush(cards: Card[]): boolean {
-    const colorCount = Array.from(new Set(cards.map((card) => card.color))).length;
+    const colorCount = Array.from(
+      new Set(cards.map((card) => card.color)),
+    ).length;
     return colorCount === 1;
   }
 }

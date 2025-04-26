@@ -5,7 +5,6 @@ import { gamePlayer } from '../utils/game-types';
 import { PokerGameAction, PokerGameState, PokerPlayer } from './poker-types';
 
 export class PokerGame implements GameEngine {
-
   private players: PokerPlayer[] = [];
   private state: PokerGameState = {
     players: [],
@@ -87,7 +86,7 @@ export class PokerGame implements GameEngine {
         break;
       default:
         throw new Error('Invalid action');
-    } 
+    }
     this.nextPlayer();
     return this.getState();
   }
@@ -149,7 +148,8 @@ export class PokerGame implements GameEngine {
   }
 
   nextPlayer() {
-    this.state.currentPlayerIndex = (this.state.currentPlayerIndex + 1) % this.state.players.length;
+    this.state.currentPlayerIndex =
+      (this.state.currentPlayerIndex + 1) % this.state.players.length;
     const currentPlayer = this.state.players[this.state.currentPlayerIndex];
     if (currentPlayer.isFolded || currentPlayer.isAllIn) {
       this.nextPlayer();
