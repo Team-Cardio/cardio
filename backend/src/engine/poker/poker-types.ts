@@ -28,3 +28,15 @@ export type PokerGameAction =
   | 'fold'
   | 'check'
   | 'allIn'
+
+export type PokerHand =
+  | 'HighCard'
+  | 'OnePair'
+  | 'TwoPair'
+  | 'ThreeOfAKind'
+  | 'Straight'
+  | 'Flush'
+  | 'FullHouse'
+  | 'FourOfAKind'
+  | 'StraightFlush'
+  | 'RoyalFlush';
