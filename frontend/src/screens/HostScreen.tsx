@@ -7,6 +7,7 @@ import GoHomeButton from '@/src/components/GoHomeButton';
 import CardViewer from '@/src/components/CardViewer';
 import { Back } from '@/src/types/cards';
 import DraggableStack from '../components/DraggableStack';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Chip1 = require('@/assets/images/chips/chip_1.png');
 const Chip5 = require('@/assets/images/chips/chip_5.png');
@@ -18,7 +19,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Host'>;
 export default function PlayerTab1({ route }: Props) {
   const roomCode = route.params.code;
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.text}>TABLE</Text>
         <Text style={styles.text}>Room code: {roomCode}</Text>
@@ -40,7 +41,7 @@ export default function PlayerTab1({ route }: Props) {
           <DraggableStack image={Chip25} />
         </View>
       </View>
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
