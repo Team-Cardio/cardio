@@ -49,13 +49,13 @@ export default function SingleChip({ chipSource }: Props) {
   })
 
   return (
-    <GestureDetector gesture={drag}>
+    <GestureDetector gesture={drag} >
       <Animated.View style={[containerStyle, { top: -350 }]}>
         <GestureDetector gesture={doubleTap}>
           <Animated.Image
             source={chipSource}
-            resizeMode="contain"
-            style={[imageStyle, { width: chipSize, height: chipSize }]}
+            resizeMode="cover"
+            style={[imageStyle, { width: chipSize, height: chipSize}]}
           />
         </GestureDetector>
       </Animated.View>

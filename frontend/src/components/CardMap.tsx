@@ -2,7 +2,8 @@ import { CardBackMap, CardMap } from "../types/cards"
 
 export const cardBackMap : CardBackMap = {
   normal: require('@/assets/images/cards/back/back_1.png'),
-  tcs: require('@/assets/images/cards/back/back_4.png'),
+  tcsLight: require('@/assets/images/cards/back/back_4.png'),
+  tcsDark: require('@/assets/images/cards/back/back_5.png'),
 };
 
 export const cardMap : CardMap = {

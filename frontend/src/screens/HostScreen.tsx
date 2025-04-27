@@ -5,9 +5,13 @@ import { RootStackParamList } from '@/src/types/navigation';
 
 import GoHomeButton from '@/src/components/GoHomeButton';
 import CardViewer from '@/src/components/CardViewer';
-import ChipsViewer from '@/src/components/ChipsViewer';
+import { Back } from '@/src/types/cards';
+import DraggableStack from '../components/DraggableStack';
 
-const Chips = require('@/assets/images/chips/chips.png');
+const Chip1 = require('@/assets/images/chips/chip_1.png');
+const Chip5 = require('@/assets/images/chips/chip_5.png');
+const Chip25 = require('@/assets/images/chips/chip_25.png');
+const Motive : Back = 'tcsDark';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Host'>;
 
@@ -24,14 +28,16 @@ export default function PlayerTab1({ route }: Props) {
       </View>
       <View style={styles.main}>
         <View style={styles.cardsContainer}>
-          <CardViewer suit='heart' rank='2' back='tcs' />
-          <CardViewer suit='spade' rank='7' back='tcs' />
-          <CardViewer suit='diamond' rank='9' back='tcs' />
-          <CardViewer suit='club' rank='5' back='tcs' />
-          <CardViewer suit='club' rank='A' back='tcs' />
+          <CardViewer suit='heart' rank='2' back={Motive} />
+          <CardViewer suit='spade' rank='7' back={Motive} />
+          <CardViewer suit='diamond' rank='9' back={Motive} />
+          <CardViewer suit='club' rank='5' back={Motive} />
+          <CardViewer suit='club' rank='A' back={Motive} />
         </View>
         <View style={styles.chipsContainer}>
-          <ChipsViewer imgSource={Chips} />
+          <DraggableStack image={Chip1} />
+          <DraggableStack image={Chip5} />
+          <DraggableStack image={Chip25} />
         </View>
       </View>
     </View>

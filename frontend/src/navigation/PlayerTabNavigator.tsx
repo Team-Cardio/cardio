@@ -15,7 +15,7 @@ const PlayerTabs = createBottomTabNavigator<PlayerTabParamList>();
 function PlayerTabNavigator({ route }: Props) {
   const code = route.params.code
   return (
-    <PlayerTabs.Navigator screenOptions={({ route }) => ({
+    <PlayerTabs.Navigator initialRouteName="Tab2" screenOptions={({ route }) => ({
       headerShown: false,
       tabBarIcon: ({ focused, color, size }) => {
         const iconMap = {
@@ -44,12 +44,12 @@ function PlayerTabNavigator({ route }: Props) {
         name="Tab1"
         component={PlayerTab1}
         initialParams={{ code }}
-        options={{ tabBarLabel: 'Hand' }}
+        options={{ tabBarLabel: 'Rankings' }}
       />
       <PlayerTabs.Screen
         name="Tab2"
         component={PlayerTab2}
-        options={{ tabBarLabel: 'Rankings' }}
+        options={{ tabBarLabel: 'Hand' }}
         initialParams={{ code }}
       />
       <PlayerTabs.Screen

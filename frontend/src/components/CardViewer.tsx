@@ -16,24 +16,9 @@ export default function CardViewer({ suit, rank, back }: Props) {
   const cardImageFront = cardMap[suit]?.[rank];
   const cardImageBack = cardBackMap[back];
 
-  const handleCardSwitch = () => {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 0,
-      useNativeDriver: true,
-    }).start(() => {
-      setShowCardFront(!showCardFront);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-    });
-  };
-
   return (
     <TouchableOpacity
-      onPress={handleCardSwitch}
+      onPress={() => setShowCardFront(!showCardFront)}
       style={styles.cardContainer}
     >
       <Animated.Image
@@ -51,7 +36,7 @@ const styles = StyleSheet.create({
       (Dimensions.get('window').width - 32) / 2,
       (Dimensions.get('window').height * 0.5 * 0.5)
     ),
-    aspectRatio: 0.73,
+    aspectRatio: 0.728,
     margin: 2,
     borderColor: 'black',
     borderRadius: "9%",
@@ -60,6 +45,5 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    opacity: 0.3,
   },
 });
