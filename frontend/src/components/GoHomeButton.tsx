@@ -9,21 +9,22 @@ type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 type GoHomeButton = { title?: string };
 
 function GoHomeButton({ title = "Go to Home Screen" }: GoHomeButton) {
-    const navigation = useNavigation<HomeNavigationProp>();
+  const navigation = useNavigation<HomeNavigationProp>();
 
-    return (
-        <View style={{ padding: 10 }}>
-            <Button
-                title={title}
-                onPress={() =>
-                    navigation.reset({
-                        index: 0,
-                        routes: [{ name: 'Home' }],
-                    })
-                }
-            />
-        </View>
-    );
+  return (
+    <View style={{ padding: 10 }}>
+      <Button
+        title={title}
+        onPress={() =>
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          })
+        }
+        color="#555"
+      />
+    </View>
+  );
 }
 
 export default GoHomeButton;
