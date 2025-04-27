@@ -16,7 +16,7 @@ type Props = {
   image: ImageSource;
 }
 
-function DraggableStack({ image }: Props) {
+const DraggableStack = ({ image }: Props) => {
   const positions = [...Array(ITEM_COUNT)].map(() => ({
     x: useSharedValue(Math.random() * SCREEN_WIDTH * 0.2),
     y: useSharedValue(Math.random() * 200),
