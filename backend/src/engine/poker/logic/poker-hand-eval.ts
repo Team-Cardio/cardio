@@ -1,6 +1,6 @@
 import { Card } from 'src/types/card';
 import { Rank } from 'src/types/enums/card.enum';
-import { PokerHand } from './poker-types';
+import { PokerHand } from '../poker-types';
 
 export class PokerHandEval {
   static evaluateHand(hand: Card[], communityCards: Card[]): PokerHand {
