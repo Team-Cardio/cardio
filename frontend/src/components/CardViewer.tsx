@@ -1,17 +1,17 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, Dimensions, TouchableOpacity, Animated } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { type Suit, type Rank, type Back } from '@/src/types/cards';
 import { cardBackMap, cardMap } from '@/src/components/CardMap';
 
-type Props = {
+type CardViewerProps = {
   suit: Suit;
   rank: Rank;
   back: Back;
 };
 
-export default function CardViewer({ suit, rank, back }: Props) {
+export default function CardViewer({ suit, rank, back }: CardViewerProps) {
   const [showCardFront, setShowCardFront] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const cardImageFront = cardMap[suit]?.[rank];
   const cardImageBack = cardBackMap[back];
@@ -23,7 +23,7 @@ export default function CardViewer({ suit, rank, back }: Props) {
     >
       <Animated.Image
         source={showCardFront ? cardImageFront : cardImageBack}
-        style={[styles.image, { opacity: fadeAnim }]}
+        style={styles.image}
         resizeMode={"contain"}
       />
     </TouchableOpacity>

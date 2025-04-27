@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-interface Props {
+interface ControllButtonProps {
   onPress: () => void;
   title: string;
 }
 
-export default function AddChipButton({ onPress, title }: Props) {
+export default function AddChipButton({ onPress, title }: ControllButtonProps) {
   return (
     <TouchableOpacity style={styles.button} onPress={onPress}>
       <Text style={styles.buttonText}>{title}</Text>
