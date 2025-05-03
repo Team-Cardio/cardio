@@ -10,10 +10,10 @@ async function bootstrap() {
     credentials: true,
   });
   const config = new DocumentBuilder()
-  .setTitle('Card.io API')
-  .setDescription('Interactive API for Card.io')
-  .setVersion('1.0')
-  .build();
+    .setTitle('Card.io API')
+    .setDescription('Interactive API for Card.io')
+    .setVersion('1.0')
+    .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
   app.useWebSocketAdapter(new IoAdapter(app));
