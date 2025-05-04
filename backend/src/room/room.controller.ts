@@ -1,34 +1,52 @@
-import { Controller, Param, Post } from '@nestjs/common';
+import { Controller, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiParam } from '@nestjs/swagger';
 import { RoomService } from './room.service';
+
+// TODO: get rid of REST api
 
 @Controller('room')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
   @Post('/create')
-  async create(): Promise<string> {
-    const code = this.roomService.create();
+  async create(): Promise<{ statusCode: HttpStatus; code: string }> {
+    const code = await this.roomService.create();
 
-    console.log(`Created a room with code ${code}`);
+    if (!code) {
+      console.error('Failed to create a room');
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        code: '',
+      };
+    }
 
-    return code;
+    return {
+      statusCode: HttpStatus.OK,
+      code,
+    };
   }
 
   @Post('/join/:code')
   @ApiParam({ name: 'code', required: true, type: 'string' })
-  async join(@Param() params: { code: string }): Promise<{ success: boolean; playerId: number }> {
+  async join(
+    @Param() params: { code: string },
+  ): Promise<{ statusCode: HttpStatus; code: string }> {
     const { code } = params;
 
-    const playerId = Math.floor(Math.random() * 1000000); // Simulate a player ID for testing
-    const success = await this.roomService.join(playerId, code);
+    const playerId = await this.roomService.join(code);
 
-    if (success) {
-      console.log(`Joined room ${code}`);
-    } else {
-      console.log(`Failed joining room ${code}`);
+    if (playerId == null) {
+      console.error(`Failed joining room ${code}`);
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        code,
+      };
     }
 
-    return { success: success, playerId: playerId };
+    console.log(`Joined room ${code}`);
+    return {
+      statusCode: HttpStatus.OK,
+      code,
+    };
   }
 }

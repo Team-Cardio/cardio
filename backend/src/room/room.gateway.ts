@@ -1,10 +1,14 @@
-import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
-import { RoomService } from "./room.service";
-
+import {
+  ConnectedSocket,
+  MessageBody,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { RoomService } from './room.service';
 
 @WebSocketGateway({ namespace: '/ws/game', cors: true })
-
 export class RoomGateway {
   @WebSocketServer() server: Server;
 
@@ -19,62 +23,60 @@ export class RoomGateway {
 
   @SubscribeMessage('join-room')
   async handleJoinRoom(
-    @MessageBody() data: { code: string; playerId: number },
+    @MessageBody() data: { code: string },
     @ConnectedSocket() client: Socket,
   ) {
-    console.log(`Player ${data.playerId} is trying to join room ${data.code}`);
-    const roomExists = await this.roomService.join(data.playerId, data.code);
-    if (!roomExists) {
+    const playerId = await this.roomService.join(data.code);
+    console.log(`Player ${playerId} has joined the room ${data.code}`);
+    if (!playerId) {
       client.emit('error', 'Room not found');
       return;
     }
 
     client.join(data.code);
-    client.emit('joined', { roomCode: data.code });
+    client.emit('joined', { playerId });
 
     const players = await this.roomService.getRoomPlayers(data.code);
-    this.server.to(data.code).emit('room-update', { players });
+    this.server.to(data.code).emit('update-room', { players });
   }
+
   @SubscribeMessage('leave-room')
   async handleLeaveRoom(
-    @MessageBody() data: { code: string; playerId: number },
+    @MessageBody() data: { playerId: number },
     @ConnectedSocket() client: Socket,
   ) {
-    client.leave(data.code);
-    client.emit('left', { roomCode: data.code });
+    const roomCode = await this.roomService.getPlayerRoom(data.playerId);
+    if (!roomCode) {
+      console.error("Player's room not found");
+      return;
+    }
 
-    const players = await this.roomService.getRoomPlayers(data.code);
-    this.server.to(data.code).emit('room-update', { players });
+    client.leave(roomCode);
+    client.emit('left', { roomCode });
+
+    const players = await this.roomService.getRoomPlayers(roomCode);
+    this.server.to(roomCode).emit('update-room', { players });
   }
 
-  @SubscribeMessage('bet')
-  async handleBet(
-    @MessageBody() data: { code: string; playerId: number; amount: number },
+  @SubscribeMessage('action')
+  async playMove(
+    @MessageBody() data: { playerId: number; actionData?: any },
     @ConnectedSocket() client: Socket,
   ) {
-    console.log(`Player ${data.playerId} placed a bet of ${data.amount} in room ${data.code}`);
-    // Handle the bet logic here
-    this.server.to(data.code).emit('bet-update', { playerId: data.playerId, amount: data.amount });
-  }
+    const roomCode = await this.roomService.getPlayerRoom(data.playerId);
+    if (!roomCode) {
+      console.error("Player's room not found");
+      return;
+    }
 
-  // emitting events from the server to the client
-  @SubscribeMessage('fold')
-  async handleFold(
-    @MessageBody() data: { code: string, playerId: number},
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log(`Player ${data.playerId} folded in room ${data.code}`);
-    //Logic
-    this.server.to(data.code).emit('fold-update', {playerId: data.playerId});
-  }
+    // Handle the move logic here
+    console.log(
+      `Player ${data.playerId} played the move ${data.actionData.type} with ${data.actionData.amount}`,
+    );
 
-  @SubscribeMessage('check')
-  async handleCheck(
-    @MessageBody() data: { code: string, playerId: number},
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log(`Player ${data.playerId} checked in room ${data.code}`);
-    //Logic
-    this.server.to(data.code).emit('check-update', {playerId: data.playerId});
+    this.server.to(roomCode).emit('update-room', {
+      playerId: data.playerId,
+      amount: data.actionData.amount,
+    });
   }
 }
