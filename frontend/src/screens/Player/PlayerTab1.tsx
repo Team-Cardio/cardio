@@ -1,18 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import GoHomeButton from '../../components/GoHomeButton'
-import { PlayerTabParamList } from '@/src/types/navigation';
-import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 
-type Props = BottomTabScreenProps<PlayerTabParamList, 'Tab1'>;
+import RankingsViewer from '@/src/components/RankingsViewer';
 
-export default function PlayerTab1({ route }: Props) {
-    const roomCode = route.params.code;
+export default function PlayerTab1() {
     return (
         <View style={styles.container}>
-            <Text>Player Tab 1</Text>
-            <Text style={{ padding: 10 }}>Room code number {roomCode}</Text>
-            <GoHomeButton />
+            <RankingsViewer/>
         </View>
     );
 }

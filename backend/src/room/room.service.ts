@@ -1,47 +1,68 @@
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PlayerEntity } from './players.entity';
-import { RoomEntity } from './room.entity';
+import { Redis } from 'ioredis';
+import { REDIS } from './const';
 import { generateCode } from './utils';
 
 @Injectable()
 export class RoomService {
-  constructor(
-    @InjectRepository(RoomEntity)
-    private roomRepository: Repository<RoomEntity>,
-    @InjectRepository(PlayerEntity)
-    private playerRepository: Repository<PlayerEntity>,
-  ) {}
+  constructor(@InjectRedis() private readonly redis: Redis) {}
 
   async create(): Promise<string> {
-    const entity: Partial<RoomEntity> = {
-      createdAt: new Date(),
-      code: generateCode(),
-    };
-    const created = this.roomRepository.create(entity);
-    await this.roomRepository.save(created);
+    const code = generateCode();
 
-    return created.code;
+    const roomKey = REDIS.getRoomKey(code);
+    const playerCounterKey = REDIS.getPlayerCounterKey();
+
+    await this.redis.sadd(roomKey, ''); // :((
+    await this.redis.set(playerCounterKey, 0);
+
+    return code;
   }
 
-  async join(playerId: number, code: string): Promise<boolean> {
-    let player = await this.playerRepository.findOneBy({ id: playerId });
-    const room = await this.roomRepository.findOneBy({ code });
-    if (room == null) return false;
+  async join(code: string): Promise<number | null> {
+    const roomKey = REDIS.getRoomKey(code);
+    const playerCounterKey = REDIS.getPlayerCounterKey();
 
-    if (player == null) {
-      player = this.playerRepository.create({ room });
-    } else {
-      player.room = room;
+    const roomExists = await this.redis.exists(roomKey);
+    if (!roomExists) {
+      return null;
     }
-    this.playerRepository.save(player);
 
-    return true;
+    const playerId = await this.redis.incr(playerCounterKey);
+
+    await this.redis.sadd(roomKey, playerId); // :((
+
+    const playerRoomKey = REDIS.getPlayerRoomKey(playerId);
+    await this.redis.set(playerRoomKey, code);
+
+    return playerId;
   }
 
-  async delete(code: string): Promise<boolean> {
-    const room = await this.roomRepository.delete({ code });
-    return room != null;
+  async getRoomPlayers(code: string): Promise<number[] | null> {
+    const roomKey = REDIS.getRoomKey(code);
+
+    const roomExists = await this.redis.exists(roomKey);
+    if (!roomExists) {
+      return null;
+    }
+
+    const playerKeys = await this.redis.smembers(roomKey);
+    const playerIds = playerKeys.map((k) => Number(k)); // redis stores values as string
+
+    return playerIds;
+  }
+
+  async getPlayerRoom(playerId: number): Promise<string | null> {
+    const playerRoomKey = REDIS.getPlayerRoomKey(playerId);
+
+    const playerRoomExists = await this.redis.exists(playerRoomKey);
+    if (!playerRoomExists) {
+      return null;
+    }
+
+    const roomCode = await this.redis.get(playerRoomKey);
+
+    return roomCode;
   }
 }

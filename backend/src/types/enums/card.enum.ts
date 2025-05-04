@@ -5,6 +5,7 @@ export enum Color {
   CLUB,
 }
 export enum Rank {
+  ACE,
   TWO,
   THREE,
   FOUR,
@@ -17,5 +18,9 @@ export enum Rank {
   JACK,
   QUEEN,
   KING,
-  ACE,
 }
+
+export type Card = {
+  color: Color;
+  rank: Rank;
+};

@@ -43,7 +43,7 @@ export default function RootNavigator() {
         >
             <Stack.Navigator initialRouteName="Home">
                 <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-                <Stack.Screen name="Host" component={HostScreen} />
+                <Stack.Screen name="Host" component={HostScreen} options={{headerShown: false }} />
                 <Stack.Screen name="Player" component={PlayerTabNavigator} options={{ headerShown: false }} />
                 <Stack.Screen name="PlayerJoinCodeScreen" component={PlayerJoinCodeScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="HostJoinCodeScreen" component={HostJoinCodeScreen} options={{ headerShown: false }} />
