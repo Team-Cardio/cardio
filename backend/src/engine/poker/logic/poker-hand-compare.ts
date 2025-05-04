@@ -1,5 +1,4 @@
 import { Card } from 'src/types/card';
-import { Rank } from 'src/types/enums/card.enum';
 import { PokerHandEval } from './poker-hand-eval';
 
 export class PokerHandCompare {
@@ -8,8 +7,14 @@ export class PokerHandCompare {
     communityCards: Card[],
     hand2: Card[],
   ): number {
-    const [pokerHand1, playerCards1] = PokerHandEval.evaluateHand(hand1, communityCards);
-    const [pokerHand2, playerCards2] = PokerHandEval.evaluateHand(hand2, communityCards);
+    const [pokerHand1, playerCards1] = PokerHandEval.evaluateHand(
+      hand1,
+      communityCards,
+    );
+    const [pokerHand2, playerCards2] = PokerHandEval.evaluateHand(
+      hand2,
+      communityCards,
+    );
 
     if (pokerHand1 > pokerHand2) {
       return 1; // Hand 1 wins
@@ -27,6 +32,5 @@ export class PokerHandCompare {
       }
     }
     return 0; // Tie
-   
   }
 }
