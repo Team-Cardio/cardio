@@ -9,25 +9,38 @@ export type PokerPlayer = gamePlayer & {
   isFolded: boolean;
 };
 
-export type PokerGameState = {
+export type InitialRoundState = {
+  players: PokerPlayer[];
+  blindAmount: number;
+  roundNumber: number;
+};
+
+export type PokerRoundState = {
   players: PokerPlayer[];
   pot: number;
   communityCards: Card[];
   currentBet: number;
   currentPlayerIndex: number;
-  round: number;
+  currentRound: number;
   gameOver: boolean;
   winner: PokerPlayer | null;
   deck: Card[];
+  numberOfPlayersToPlay: number;
+  blindPlayerIndex: number;
+  blindAmount: number;
 };
 
-export type PokerGameAction =
-  | 'bet'
-  | 'call'
-  | 'raise'
-  | 'fold'
-  | 'check'
-  | 'allIn';
+// The state of the game consisting of multiple rounds
+export type PokerGameState = {
+  players: PokerPlayer[];
+  roundNumber: number;
+  lastWinner: PokerPlayer | null;
+  gameOver: boolean;
+  roundHistory: PokerRoundState[];
+  defaultBlindAmount: number;
+};
+
+export type PokerGameAction = 'call' | 'raise' | 'fold' | 'check' | 'allIn';
 
 export enum PokerHand {
   HighCard,

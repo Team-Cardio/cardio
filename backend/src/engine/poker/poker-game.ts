@@ -3,20 +3,12 @@ import { Color, Rank } from 'src/types/enums/card.enum';
 import { GameEngine } from '../game-engine.interface';
 import { gamePlayer } from '../utils/game-types';
 import { PokerGameAction, PokerGameState, PokerPlayer } from './poker-types';
+import { PokerRound } from './logic/poker-round';
 
 export class PokerGame implements GameEngine {
-  private players: PokerPlayer[] = [];
-  private state: PokerGameState = {
-    players: [],
-    pot: 0,
-    communityCards: [],
-    currentBet: 0,
-    currentPlayerIndex: 0,
-    round: 0,
-    gameOver: false,
-    winner: null,
-    deck: [],
-  };
+  private players: PokerPlayer[];
+  private state: PokerGameState;
+  private currentRound: PokerRound | null;
 
   initialize(players: gamePlayer[]) {
     this.players = players.map((player) => ({
@@ -29,134 +21,53 @@ export class PokerGame implements GameEngine {
     }));
     this.state = {
       players: this.players,
-      pot: 0,
-      communityCards: [],
-      currentBet: 0,
-      currentPlayerIndex: 0,
-      round: 0,
+      roundNumber: 0,
       gameOver: false,
-      winner: null,
-      deck: this.createDeck(),
-    };
+      roundHistory: [],
+      defaultBlindAmount: 10,
+      currentRound: null,
+      lastWinner: null,
+    } as PokerGameState;
   }
 
-  shuffleDeck(deck: Card[]) {
-    for (let i = deck.length - 1; i > 0; i--) {
-      // Fisher-Yates shuffle algorithm xD
-      const j = Math.floor(Math.random() * (i + 1));
-      [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
-    return deck;
+  startGame() {
+    this.state.roundNumber = 1;
+    this.state.roundHistory = [];
+    this.currentRound = new PokerRound({
+      players: this.players,
+      blindAmount: this.state.defaultBlindAmount,
+      roundNumber: 1,
+    });
   }
 
-  createDeck() {
-    const deck: Card[] = [];
-    for (const color of Object.values(Color)) {
-      for (const rank of Object.values(Rank)) {
-        deck.push({ color: color as Color, rank: rank as Rank });
-      }
-    }
-    return this.shuffleDeck(deck);
-  }
-
-  processAction(playerId: number, action: PokerGameAction, payload?: any) {
-    const player = this.state.players.find((p) => p.id === playerId);
-    if (!player) {
-      throw new Error('Player not found');
-    }
-
-    switch (action) {
-      case 'bet':
-        this.handleBet(player, payload.amount);
-        break;
-      case 'call':
-        this.handleCall(player);
-        break;
-      case 'raise':
-        this.handleRaise(player, payload.amount);
-        break;
-      case 'fold':
-        this.handleFold(player);
-        break;
-      case 'check':
-        this.handleCheck(player);
-        break;
-      case 'allIn':
-        this.handleAllIn(player);
-        break;
-      default:
-        throw new Error('Invalid action');
-    }
-    this.nextPlayer();
-    return this.getState();
-  }
-
-  handleBet(player: PokerPlayer, amount: number) {
-    if (amount < this.state.currentBet) {
-      throw new Error('Bet must be at least the current bet');
-    }
-    if (player.chips < amount) {
-      throw new Error('Not enough chips');
-    }
-    player.chips -= amount;
-    player.bet += amount;
-    this.state.pot += amount;
-    this.state.currentBet = amount;
-  }
-
-  handleCall(player: PokerPlayer) {
-    const amountToCall = this.state.currentBet - player.bet;
-    if (amountToCall > player.chips) {
-      throw new Error('Not enough chips to call');
-    }
-    player.chips -= amountToCall;
-    player.bet += amountToCall;
-    this.state.pot += amountToCall;
-  }
-
-  handleRaise(player: PokerPlayer, amount: number) {
-    if (amount < this.state.currentBet) {
-      throw new Error('Raise must be at least the current bet');
-    }
-    if (player.chips < amount) {
-      throw new Error('Not enough chips');
-    }
-    player.chips -= amount;
-    player.bet += amount;
-    this.state.pot += amount;
-    this.state.currentBet = amount;
-  }
-
-  handleFold(player: PokerPlayer) {
-    player.isFolded = true;
-  }
-
-  handleCheck(player: PokerPlayer) {
-    if (this.state.currentBet > player.bet) {
-      throw new Error('Cannot check, there is a bet to call');
-    }
-  }
-  handleAllIn(player: PokerPlayer) {
-    if (player.chips === 0) {
-      throw new Error('Player is already all in');
-    }
-    this.state.pot += player.chips;
-    player.bet += player.chips;
-    player.isAllIn = true;
-    player.chips = 0;
-    // important to add later: cap on the reward for the player who is all in to the amount of chips they had before going all in
-  }
-
-  nextPlayer() {
-    this.state.currentPlayerIndex =
-      (this.state.currentPlayerIndex + 1) % this.state.players.length;
-    const currentPlayer = this.state.players[this.state.currentPlayerIndex];
-    if (currentPlayer.isFolded || currentPlayer.isAllIn) {
-      this.nextPlayer();
+  newRound() {
+    if (this.currentRound) {
+      this.state.roundHistory.push(this.currentRound.getState());
+      this.state.lastWinner = this.currentRound.getState().winner;
+      this.state.roundNumber++;
+      this.currentRound = new PokerRound({
+        players: this.players,
+        blindAmount: this.state.defaultBlindAmount,
+        roundNumber: this.state.roundNumber,
+      });
+    } else {
+      throw new Error('No current round to end');
     }
   }
 
-  getState() {
+  processAction(playerId: number, action: string, payload?: any): void {
+    this.currentRound?.processAction(
+      playerId,
+      action as PokerGameAction,
+      payload,
+    );
+
+    if (this.currentRound?.getState().gameOver) {
+      this.newRound();
+    }
+  }
+
+  getState(): PokerGameState {
     return this.state;
   }
 }
