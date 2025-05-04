@@ -1,13 +1,12 @@
+import { RedisModule } from '@nestjs-modules/ioredis';
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PlayerEntity } from './players.entity';
 import { RoomController } from './room.controller';
-import { RoomEntity } from './room.entity';
+import { RoomGateway } from './room.gateway';
 import { RoomService } from './room.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([RoomEntity, PlayerEntity])],
+  imports: [RedisModule],
   controllers: [RoomController],
-  providers: [RoomService],
+  providers: [RoomService, RoomGateway],
 })
 export class RoomModule {}

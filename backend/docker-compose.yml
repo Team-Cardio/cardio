@@ -1,29 +1,16 @@
 version: '3.8'
 
 services:
-  postgres:
-    container_name: postgres
-    image: postgres:16
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWD}
-      POSTGRES_DB: ${DB_NAME}
+  redis:
+    container_name: redis
+    image: redis:6.2-alpine
     ports:
-      - "${DB_PORT}:5432"
+      - '${REDIS_PORT}:6379'
     volumes:
-      - database:/var/lib/postgresql/data
-
-  pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    restart: always
+      -  database:/var/lib/redis/data:/root/redis
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${DB_USER}@card.io
-      PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWD}
-    ports:
-      - "${DB_ADMIN_PORT}:80"
-    depends_on:
-      - postgres
+      - REDIS_PASSWORD=${REDIS_PASSWD}
+      - REDIS_PORT=${REDIS_PORT}
 
 volumes:
   database:
