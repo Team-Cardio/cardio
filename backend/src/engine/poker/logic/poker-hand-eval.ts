@@ -103,6 +103,7 @@ export class PokerHandEval {
       return [PokerHand.OnePair, [...pair, ...kickers]];
     }
 
+    // what about aces?
     return [
       PokerHand.HighCard,
       cards.sort((a, b) => b.rank - a.rank).slice(0, 5),
@@ -111,12 +112,32 @@ export class PokerHandEval {
 
   private static isStraight(cards: Card[]): [boolean, Card?] {
     const ranks = cards.map((card) => card.rank).sort((a, b) => a - b);
-    const consecutiveCount = ranks.reduce((count, rank, index) => {
-      if (index === 0) return count;
-      return rank === ranks[index - 1] + 1 ? count + 1 : count;
-    }, 1);
+    // remove duplicates and add 0 for Ace if present
+    const uniqueRanks = Array.from(new Set(ranks));
+    if (uniqueRanks.includes(Rank.ACE)) {
+      uniqueRanks.push(Rank.ACE);
+    }
+    const consecutiveCount = ranks.reduce(
+      (acc, rank, index) => {
+        if (index === 0) return { count: 1, maxCount: 1 };
 
-    const isStraight = consecutiveCount >= 5;
+        if (rank === ranks[index - 1] + 1) {
+          const newCount = acc.count + 1;
+          return {
+            count: newCount,
+            maxCount: Math.max(acc.maxCount, newCount),
+          };
+        }
+
+        return {
+          count: 1,
+          maxCount: Math.max(acc.maxCount, acc.count),
+        };
+      },
+      { count: 0, maxCount: 0 },
+    );
+
+    const isStraight = consecutiveCount.maxCount >= 5;
     const highCard = cards.filter(
       (card) => card.rank === ranks[ranks.length - 1],
     )[0];
