@@ -35,8 +35,9 @@ export class PokerGame implements GameEngine {
     this.state.roundHistory = [];
     this.currentRound = new PokerRound({
       players: this.players,
-      blindAmount: this.state.defaultBlindAmount,
+      bigBlindAmount: this.state.defaultBlindAmount,
       roundNumber: 1,
+      dealerIndex: 0,
     });
   }
 
@@ -47,8 +48,10 @@ export class PokerGame implements GameEngine {
       this.state.roundNumber++;
       this.currentRound = new PokerRound({
         players: this.players,
-        blindAmount: this.state.defaultBlindAmount,
+        bigBlindAmount: this.state.defaultBlindAmount,
         roundNumber: this.state.roundNumber,
+        dealerIndex:
+          (this.currentRound.getState().dealerIndex + 1) % this.players.length,
       });
     } else {
       throw new Error('No current round to end');

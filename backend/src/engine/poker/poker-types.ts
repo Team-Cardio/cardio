@@ -11,8 +11,9 @@ export type PokerPlayer = gamePlayer & {
 
 export type InitialRoundState = {
   players: PokerPlayer[];
-  blindAmount: number;
+  bigBlindAmount: number;
   roundNumber: number;
+  dealerIndex: number;
 };
 
 export type PokerRoundState = {
@@ -26,8 +27,11 @@ export type PokerRoundState = {
   winner: PokerPlayer | null;
   deck: Card[];
   numberOfPlayersToPlay: number;
-  blindPlayerIndex: number;
-  blindAmount: number;
+  dealerIndex: number;
+  bigBlindAmount: number;
+  smallBlindAmount: number;
+  minimumBet: number;
+  lastBet: number;
 };
 
 // The state of the game consisting of multiple rounds
@@ -54,3 +58,11 @@ export enum PokerHand {
   StraightFlush,
   RoyalFlush,
 }
+
+export enum PokerRoundStateEnum {
+  PreFlop,
+  Flop,
+  Turn,
+  River,
+  Showdown,
+} // Got names from wikipedia

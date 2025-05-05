@@ -19,17 +19,18 @@ export class PokerRound {
     this.initializeRound(initialState);
   }
 
-  // Initialize the round
   initializeRound(initialState: InitialRoundState) {
     this.state.currentBet = 0;
     this.state.pot = 0;
     this.state.communityCards = [];
     this.state.currentRound = initialState.roundNumber;
-    this.state.blindAmount = initialState.blindAmount;
+    this.state.bigBlindAmount = initialState.bigBlindAmount;
+    this.state.smallBlindAmount = initialState.bigBlindAmount / 2;
+    this.state.minimumBet = initialState.bigBlindAmount;
+    this.state.lastBet = 0;
     this.state.deck = this.shuffleDeck(this.createDeck());
     this.dealCards();
-    this.state.blindPlayerIndex =
-      (this.state.blindPlayerIndex + 1) % this.players.length;
+    this.state.dealerIndex = initialState.dealerIndex;
   }
 
   shuffleDeck(deck: Card[]) {
