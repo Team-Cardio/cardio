@@ -9,9 +9,9 @@ import { Back } from '@/src/types/cards';
 import DraggableStack from '../components/DraggableStack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-const Chip1 = require('@/assets/images/chips/chip_1.png');
-const Chip5 = require('@/assets/images/chips/chip_5.png');
-const Chip25 = require('@/assets/images/chips/chip_25.png');
+const Chip1 = require('@/assets/images/chips/monte_carlo/chip_1.png');
+const Chip5 = require('@/assets/images/chips/monte_carlo/chip_5.png');
+const Chip25 = require('@/assets/images/chips/monte_carlo/chip_25.png');
 const Motive : Back = 'tcsDark';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Host'>;
