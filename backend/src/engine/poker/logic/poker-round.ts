@@ -1,9 +1,9 @@
-import { Card } from 'src/types/card';
-import { Color, Rank } from 'src/types/enums/card.enum';
+import { Card, Color, Rank } from 'src/types/card';
+
 import {
   InitialRoundState,
   PokerGameAction,
-  PokerGameState,
+  PokerRoundStateEnum,
   PokerPlayer,
   PokerRoundState,
 } from '../poker-types';
@@ -20,17 +20,24 @@ export class PokerRound {
   }
 
   initializeRound(initialState: InitialRoundState) {
-    this.state.currentBet = 0;
-    this.state.pot = 0;
-    this.state.communityCards = [];
-    this.state.currentRound = initialState.roundNumber;
-    this.state.bigBlindAmount = initialState.bigBlindAmount;
-    this.state.smallBlindAmount = initialState.bigBlindAmount / 2;
-    this.state.minimumBet = initialState.bigBlindAmount;
-    this.state.lastBet = 0;
-    this.state.deck = this.shuffleDeck(this.createDeck());
-    this.dealCards();
-    this.state.dealerIndex = initialState.dealerIndex;
+    this.state = {
+      roundPhase: PokerRoundStateEnum.PreFlop,
+      players: this.players,
+      pot: 0,
+      communityCards: [],
+      currentBet: 0,
+      currentPlayerIndex: initialState.dealerIndex,
+      currentRound: initialState.roundNumber,
+      gameOver: false,
+      winner: null,
+      deck: this.shuffleDeck(this.createDeck()),
+      numberOfPlayersToPlay: initialState.players.length,
+      numberOfActivePlayers: initialState.players.length,
+      dealerIndex: initialState.dealerIndex,
+      bigBlindAmount: initialState.bigBlindAmount,
+      smallBlindAmount: initialState.bigBlindAmount / 2,
+      minimumBet: initialState.bigBlindAmount,
+    } as PokerRoundState;
   }
 
   shuffleDeck(deck: Card[]) {
@@ -52,12 +59,42 @@ export class PokerRound {
     return this.shuffleDeck(deck);
   }
 
+  startRound() {
+    const dealer = this.state.players[this.state.dealerIndex];
+    const smallBlind =
+      this.state.players[
+        (this.state.dealerIndex + 1) % this.state.players.length
+      ];
+    const bigBlind =
+      this.state.players[
+        (this.state.dealerIndex + 2) % this.state.players.length
+      ];
+    smallBlind.chips -= this.state.smallBlindAmount;
+    smallBlind.bet += this.state.smallBlindAmount;
+    bigBlind.chips -= this.state.bigBlindAmount;
+    bigBlind.bet += this.state.bigBlindAmount;
+    this.state.pot += this.state.smallBlindAmount + this.state.bigBlindAmount;
+    this.state.currentBet = this.state.bigBlindAmount;
+    this.state.currentPlayerIndex =
+      (this.state.dealerIndex + 3) % this.state.players.length;
+
+    this.dealCards();
+  }
+
   processAction(playerId: number, action: PokerGameAction, payload?: any) {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) {
       throw new Error('Player not found');
     }
-
+    if (this.state.currentPlayerIndex !== playerId) {
+      throw new Error('Not your turn');
+    }
+    if (player.isFolded || player.isAllIn) {
+      throw new Error('Player cannot take action');
+    }
+    if (this.state.gameOver) {
+      throw new Error('Game is over');
+    }
     switch (action) {
       case 'call':
         this.handleCall(player);
@@ -77,6 +114,42 @@ export class PokerRound {
       default:
         throw new Error('Invalid action');
     }
+    if (this.state.numberOfPlayersToPlay === 1) {
+      this.state.gameOver = true;
+      this.state.winner = this.state.players.find((p) => !p.isFolded) || null;
+      this.updateChips();
+      return this.getState();
+    }
+
+    if (this.state.numberOfActivePlayers === 0) {
+      if (this.state.roundPhase === PokerRoundStateEnum.PreFlop) {
+        this.state.roundPhase = PokerRoundStateEnum.Flop;
+        this.dealFlop();
+      }
+      if (this.state.roundPhase === PokerRoundStateEnum.Flop) {
+        this.state.roundPhase = PokerRoundStateEnum.Turn;
+        this.dealTurn();
+      }
+      if (this.state.roundPhase === PokerRoundStateEnum.Turn) {
+        this.state.roundPhase = PokerRoundStateEnum.River;
+        this.dealRiver();
+      }
+      if (this.state.roundPhase === PokerRoundStateEnum.River) {
+        this.state.gameOver = true;
+        this.chooseWinner();
+        this.updateChips();
+        return this.getState();
+      }
+      for (const player of this.state.players) {
+        if (player.isFolded) {
+          player.isActive = false;
+        } else {
+          player.isActive = true;
+        }
+      }
+      this.state.numberOfActivePlayers = this.state.players.length;
+    }
+
     this.nextPlayer();
     return this.getState();
   }
@@ -106,6 +179,7 @@ export class PokerRound {
 
   handleFold(player: PokerPlayer) {
     player.isFolded = true;
+    player.isActive = false;
     this.state.numberOfPlayersToPlay -= 1;
   }
 
@@ -113,17 +187,23 @@ export class PokerRound {
     if (this.state.currentBet > player.bet) {
       throw new Error('Cannot check, there is a bet to call');
     }
+    if (player.isActive) this.state.numberOfActivePlayers -= 1;
+    player.isActive = false;
   }
+
   handleAllIn(player: PokerPlayer) {
-    if (player.chips === 0) {
+    if (player.isAllIn) {
       throw new Error('Player is already all in');
+    }
+    if (player.chips === 0) {
+      throw new Error('Player has no chips to go all in');
     }
     this.state.pot += player.chips;
     player.bet += player.chips;
     player.isAllIn = true;
+    player.isActive = false;
+    this.state.numberOfActivePlayers -= 1;
     player.chips = 0;
-    this.state.numberOfPlayersToPlay -= 1;
-    // important to add later: cap on the reward for the player who is all in to the amount of chips they had before going all in
   }
 
   nextPlayer() {
@@ -152,17 +232,22 @@ export class PokerRound {
     }
   }
 
-  dealFlop() {
+  dealCommunityCard() {
     this.state.communityCards.push(this.state.deck.pop()!);
+  }
+
+  dealFlop() {
+    for (let i = 0; i < 3; i++) {
+      this.dealCommunityCard();
+    }
   }
 
   dealTurn() {
-    this.state.communityCards.push(this.state.deck.pop()!);
+    this.dealCommunityCard();
   }
 
-  dealCommunityCards() {
-    this.dealFlop();
-    this.dealTurn();
+  dealRiver() {
+    this.dealCommunityCard();
   }
 
   chooseWinner() {
