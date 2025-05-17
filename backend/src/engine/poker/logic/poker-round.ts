@@ -29,7 +29,7 @@ export class PokerRound {
       currentPlayerIndex: initialState.dealerIndex,
       currentRound: initialState.roundNumber,
       gameOver: false,
-      winner: null,
+      winners: null,
       deck: this.shuffleDeck(this.createDeck()),
       numberOfPlayersToPlay: initialState.players.length,
       numberOfActivePlayers: initialState.players.length,
@@ -60,23 +60,19 @@ export class PokerRound {
   }
 
   startRound() {
-    const dealer = this.state.players[this.state.dealerIndex];
+    const { state } = this;
+    const dealer = state.players[state.dealerIndex];
     const smallBlind =
-      this.state.players[
-        (this.state.dealerIndex + 1) % this.state.players.length
-      ];
+      state.players[(state.dealerIndex + 1) % state.players.length];
     const bigBlind =
-      this.state.players[
-        (this.state.dealerIndex + 2) % this.state.players.length
-      ];
-    smallBlind.chips -= this.state.smallBlindAmount;
-    smallBlind.bet += this.state.smallBlindAmount;
-    bigBlind.chips -= this.state.bigBlindAmount;
-    bigBlind.bet += this.state.bigBlindAmount;
-    this.state.pot += this.state.smallBlindAmount + this.state.bigBlindAmount;
-    this.state.currentBet = this.state.bigBlindAmount;
-    this.state.currentPlayerIndex =
-      (this.state.dealerIndex + 3) % this.state.players.length;
+      state.players[(state.dealerIndex + 2) % state.players.length];
+    smallBlind.chips -= state.smallBlindAmount;
+    smallBlind.bet += state.smallBlindAmount;
+    bigBlind.chips -= state.bigBlindAmount;
+    bigBlind.bet += state.bigBlindAmount;
+    state.pot += state.smallBlindAmount + state.bigBlindAmount;
+    state.currentBet = state.bigBlindAmount;
+    state.currentPlayerIndex = (state.dealerIndex + 3) % state.players.length;
 
     this.dealCards();
   }
@@ -116,7 +112,8 @@ export class PokerRound {
     }
     if (this.state.numberOfPlayersToPlay === 1) {
       this.state.gameOver = true;
-      this.state.winner = this.state.players.find((p) => !p.isFolded) || null;
+      this.state.winners =
+        this.state.players.filter((p) => !p.isFolded) || null;
       this.updateChips();
       return this.getState();
     }
@@ -158,6 +155,10 @@ export class PokerRound {
     const amountToCall = this.state.currentBet - player.bet;
     if (amountToCall > player.chips) {
       throw new Error('Not enough chips to call');
+    }
+    if (amountToCall === player.chips) {
+      this.handleAllIn(player);
+      return;
     }
     player.chips -= amountToCall;
     player.bet += amountToCall;
@@ -255,27 +256,33 @@ export class PokerRound {
       (player) => !player.isFolded,
     );
     if (remainingPlayers.length === 0) {
-      this.state.winner = null;
+      this.state.winners = null;
       return;
     }
-    let bestHand = remainingPlayers[0];
+    let bestHand = [remainingPlayers[0]];
     for (let i = 1; i < remainingPlayers.length; i++) {
       const currentPlayer = remainingPlayers[i];
       const comparison = PokerHandCompare.compareHands(
-        bestHand.hand,
+        bestHand[0].hand,
         this.state.communityCards,
         currentPlayer.hand,
       );
       if (comparison > 0) {
-        bestHand = currentPlayer;
+        bestHand = [currentPlayer];
+      }
+      if (comparison === 0) {
+        bestHand.push(currentPlayer);
       }
     }
-    this.state.winner = bestHand;
+
+    this.state.winners = bestHand;
   }
 
   updateChips() {
-    if (this.state.winner) {
-      this.state.winner.chips += this.state.pot;
+    if (this.state.winners) {
+      this.state.winners.forEach((winner) => {
+        winner.chips += this.state.pot / this.state.winners!.length;
+      });
       this.state.pot = 0;
     }
   }

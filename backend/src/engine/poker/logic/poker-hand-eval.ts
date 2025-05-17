@@ -1,5 +1,5 @@
 import { Card, Color, Rank } from 'src/types/card';
-import { PokerHand } from '../poker-types';
+import { PokerHand, RankEval, CardEval } from '../poker-types';
 
 export class PokerHandEval {
   static evaluateHand(
@@ -7,10 +7,41 @@ export class PokerHandEval {
     communityCards: Card[],
   ): [PokerHand, Card[]] {
     const allCards = [...hand, ...communityCards];
-    return this.getHandRank(allCards);
+    // duplicate all aces into the ACE_HIGH and convert
+    const allConvertedCards = allCards.map((card) => {
+      if (card.rank === Rank.ACE) {
+        return [
+          {
+            color: card.color,
+            rank: RankEval.ACE as unknown as RankEval,
+          } as CardEval,
+          {
+            color: card.color,
+            rank: RankEval.ACE_HIGH as unknown as RankEval,
+          } as CardEval,
+        ];
+      }
+      return {
+        color: card.color,
+        rank: card.rank as unknown as RankEval,
+      } as CardEval; // i dont like this
+    });
+    const res = this.getHandRank(allConvertedCards.flat());
+    // convert the cards back to the original rank
+
+    const convertedCards = res[1].map((card) => {
+      if (card.rank === RankEval.ACE) {
+        return { color: card.color, rank: Rank.ACE } as Card;
+      }
+      if (card.rank === RankEval.ACE_HIGH) {
+        return { color: card.color, rank: Rank.ACE } as Card;
+      }
+      return { color: card.color, rank: card.rank as unknown as Rank } as Card;
+    });
+    return [res[0], convertedCards];
   }
 
-  private static getHandRank(cards: Card[]): [PokerHand, Card[]] {
+  private static getHandRank(cards: CardEval[]): [PokerHand, CardEval[]] {
     const [isFlush, flushColor] = this.isFlush(cards);
     const [isStraight, straightHighCard] = this.isStraight(cards);
 
@@ -27,7 +58,7 @@ export class PokerHandEval {
       }
     }
 
-    const rankCount = new Map<Rank, { cnt: number; rank: Rank }>();
+    const rankCount = new Map<RankEval, { cnt: number; rank: RankEval }>();
     for (const card of cards) {
       rankCount.set(card.rank, {
         cnt: (rankCount.get(card.rank)?.cnt || 0) + 1,
@@ -111,12 +142,8 @@ export class PokerHandEval {
     ];
   }
 
-  private static isStraight(cards: Card[]): [boolean, Card?] {
+  private static isStraight(cards: CardEval[]): [boolean, CardEval?] {
     const ranks = cards.map((card) => card.rank).sort((a, b) => a - b);
-    const uniqueRanks = Array.from(new Set(ranks));
-    if (uniqueRanks.includes(Rank.ACE)) {
-      uniqueRanks.push(Rank.ACE);
-    }
     const consecutiveCount = ranks.reduce(
       (acc, rank, index) => {
         if (index === 0) return { count: 1, maxCount: 1 };
@@ -129,24 +156,13 @@ export class PokerHandEval {
             rank: acc.maxCount >= 5 ? ranks[index] : acc.rank,
           };
         }
-
-        // special case for Ace-high straight
-        if (rank === Rank.ACE && ranks[index - 1] === Rank.KING) {
-          const newCount = acc.count + 1;
-          return {
-            count: newCount,
-            maxCount: Math.max(acc.maxCount, newCount),
-            rank: acc.maxCount >= 5 ? ranks[index] : acc.rank,
-          };
-        }
-
         return {
           count: 1,
           maxCount: Math.max(acc.maxCount, acc.count),
           rank: acc.rank,
         };
       },
-      { count: 0, maxCount: 0, rank: Rank.ACE },
+      { count: 0, maxCount: 0, rank: RankEval.ACE },
     );
 
     const isStraight = consecutiveCount.maxCount >= 5;
@@ -157,7 +173,7 @@ export class PokerHandEval {
     return [isStraight, highCard];
   }
 
-  private static isFlush(cards: Card[]): [boolean, Color?] {
+  private static isFlush(cards: CardEval[]): [boolean, Color?] {
     const counts: Record<Color, number> = {
       [Color.SPADE]: 0,
       [Color.HEART]: 0,

@@ -1,5 +1,5 @@
 import { gamePlayer } from '../utils/game-types';
-import { Card } from 'src/types/card';
+import { Card, Color, Rank } from 'src/types/card';
 
 export type PokerPlayer = gamePlayer & {
   chips: number;
@@ -27,7 +27,7 @@ export type PokerRoundState = {
   currentPlayerIndex: number;
   currentRound: number;
   gameOver: boolean;
-  winner: PokerPlayer | null;
+  winners: PokerPlayer[] | null;
   deck: Card[];
   numberOfPlayersToPlay: number;
   numberOfActivePlayers: number;
@@ -70,3 +70,25 @@ export enum PokerRoundStateEnum {
   River,
   Showdown,
 }
+
+export enum RankEval {
+  ACE = Rank.ACE,
+  TWO = Rank.TWO,
+  THREE = Rank.THREE,
+  FOUR = Rank.FOUR,
+  FIVE = Rank.FIVE,
+  SIX = Rank.SIX,
+  SEVEN = Rank.SEVEN,
+  EIGHT = Rank.EIGHT,
+  NINE = Rank.NINE,
+  TEN = Rank.TEN,
+  JACK = Rank.JACK,
+  QUEEN = Rank.QUEEN,
+  KING = Rank.KING,
+  ACE_HIGH,
+}
+
+export type CardEval = {
+  color: Color;
+  rank: RankEval;
+};
