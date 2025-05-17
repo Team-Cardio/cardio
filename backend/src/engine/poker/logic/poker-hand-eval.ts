@@ -1,5 +1,4 @@
-import { Card } from 'src/types/card';
-import { Color, Rank } from 'src/types/enums/card.enum';
+import { Card, Color, Rank } from 'src/types/card';
 import { PokerHand } from '../poker-types';
 
 export class PokerHandEval {
@@ -16,7 +15,6 @@ export class PokerHandEval {
     const [isStraight, straightHighCard] = this.isStraight(cards);
 
     if (isFlush && isStraight) {
-      // iterate over all colors and look for a straight flush
       const flushCards = cards.filter((card) => card.color === flushColor);
       const [isStraightFlush, straightFlushHighCard] =
         this.isStraight(flushCards);
@@ -45,9 +43,9 @@ export class PokerHandEval {
 
     const isFourOfAKind = counts[0].cnt === 4;
     const isFullHouse = counts[0].cnt === 3 && counts[1].cnt >= 2;
-    const isThreeOfAKind = counts[0].cnt === 3 && counts[1].cnt === 1;
+    const isThreeOfAKind = counts[0].cnt === 3;
     const isTwoPair = counts[0].cnt === 2 && counts[1].cnt === 2;
-    const isOnePair = counts[0].cnt === 2 && counts[1].cnt === 1;
+    const isOnePair = counts[0].cnt === 2;
 
     if (isFourOfAKind) {
       const four = cards.filter((card) => card.rank === counts[0].rank);
@@ -73,6 +71,10 @@ export class PokerHandEval {
     if (isStraight) {
       const straightCards = cards
         .filter((card) => card.rank <= straightHighCard!.rank)
+        // remove same rank cards (can be different colors)
+        .filter((card, index, self) => {
+          return index === self.findIndex((c) => c.rank === card.rank);
+        })
         .sort((a, b) => b.rank - a.rank)
         .slice(0, 5);
       return [PokerHand.Straight, straightCards];
@@ -103,7 +105,6 @@ export class PokerHandEval {
       return [PokerHand.OnePair, [...pair, ...kickers]];
     }
 
-    // what about aces?
     return [
       PokerHand.HighCard,
       cards.sort((a, b) => b.rank - a.rank).slice(0, 5),
@@ -112,7 +113,6 @@ export class PokerHandEval {
 
   private static isStraight(cards: Card[]): [boolean, Card?] {
     const ranks = cards.map((card) => card.rank).sort((a, b) => a - b);
-    // remove duplicates and add 0 for Ace if present
     const uniqueRanks = Array.from(new Set(ranks));
     if (uniqueRanks.includes(Rank.ACE)) {
       uniqueRanks.push(Rank.ACE);
@@ -126,21 +126,33 @@ export class PokerHandEval {
           return {
             count: newCount,
             maxCount: Math.max(acc.maxCount, newCount),
+            rank: acc.maxCount >= 5 ? ranks[index] : acc.rank,
+          };
+        }
+
+        // special case for Ace-high straight
+        if (rank === Rank.ACE && ranks[index - 1] === Rank.KING) {
+          const newCount = acc.count + 1;
+          return {
+            count: newCount,
+            maxCount: Math.max(acc.maxCount, newCount),
+            rank: acc.maxCount >= 5 ? ranks[index] : acc.rank,
           };
         }
 
         return {
           count: 1,
           maxCount: Math.max(acc.maxCount, acc.count),
+          rank: acc.rank,
         };
       },
-      { count: 0, maxCount: 0 },
+      { count: 0, maxCount: 0, rank: Rank.ACE },
     );
 
     const isStraight = consecutiveCount.maxCount >= 5;
-    const highCard = cards.filter(
-      (card) => card.rank === ranks[ranks.length - 1],
-    )[0];
+    const highCard = isStraight
+      ? cards.find((card) => card.rank === consecutiveCount.rank)
+      : undefined;
 
     return [isStraight, highCard];
   }
