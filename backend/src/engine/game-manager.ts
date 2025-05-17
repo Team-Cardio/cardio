@@ -10,7 +10,6 @@ export class GameManager {
     this.roomCode = code;
   }
 
-  //TODO: add type for players
   createGame(roomCode: string, type: gameType, players: any[]) {
     let engine: GameEngine;
 

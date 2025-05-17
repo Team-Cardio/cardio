@@ -7,6 +7,7 @@ export type PokerPlayer = gamePlayer & {
   bet: number;
   isAllIn: boolean;
   isFolded: boolean;
+  isActive: boolean;
 };
 
 export type InitialRoundState = {
@@ -14,9 +15,11 @@ export type InitialRoundState = {
   bigBlindAmount: number;
   roundNumber: number;
   dealerIndex: number;
+  leftoverPot: number;
 };
 
 export type PokerRoundState = {
+  roundPhase: PokerRoundStateEnum;
   players: PokerPlayer[];
   pot: number;
   communityCards: Card[];
@@ -27,11 +30,11 @@ export type PokerRoundState = {
   winner: PokerPlayer | null;
   deck: Card[];
   numberOfPlayersToPlay: number;
+  numberOfActivePlayers: number;
   dealerIndex: number;
   bigBlindAmount: number;
   smallBlindAmount: number;
   minimumBet: number;
-  lastBet: number;
 };
 
 // The state of the game consisting of multiple rounds
@@ -42,6 +45,7 @@ export type PokerGameState = {
   gameOver: boolean;
   roundHistory: PokerRoundState[];
   defaultBlindAmount: number;
+  chipsInPlay: number;
 };
 
 export type PokerGameAction = 'call' | 'raise' | 'fold' | 'check' | 'allIn';
@@ -65,4 +69,4 @@ export enum PokerRoundStateEnum {
   Turn,
   River,
   Showdown,
-} // Got names from wikipedia
+}
