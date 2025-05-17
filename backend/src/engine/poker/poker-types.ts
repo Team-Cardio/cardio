@@ -41,7 +41,7 @@ export type PokerRoundState = {
 export type PokerGameState = {
   players: PokerPlayer[];
   roundNumber: number;
-  lastWinner: PokerPlayer | null;
+  lastWinners: PokerPlayer[] | null;
   gameOver: boolean;
   roundHistory: PokerRoundState[];
   defaultBlindAmount: number;

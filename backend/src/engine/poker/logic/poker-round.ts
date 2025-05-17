@@ -9,6 +9,7 @@ import {
 } from '../poker-types';
 
 import { PokerHandCompare } from './poker-hand-compare';
+import { max } from 'rxjs';
 
 export class PokerRound {
   private players: PokerPlayer[];
@@ -67,6 +68,14 @@ export class PokerRound {
     const bigBlind =
       state.players[(state.dealerIndex + 2) % state.players.length];
     smallBlind.chips -= state.smallBlindAmount;
+    if (smallBlind.chips <= 0) {
+      smallBlind.isAllIn = true;
+      smallBlind.chips = 0;
+    }
+    if (bigBlind.chips <= 0) {
+      bigBlind.isAllIn = true;
+      bigBlind.chips = 0;
+    }
     smallBlind.bet += state.smallBlindAmount;
     bigBlind.chips -= state.bigBlindAmount;
     bigBlind.bet += state.bigBlindAmount;
@@ -203,6 +212,8 @@ export class PokerRound {
     player.bet += player.chips;
     player.isAllIn = true;
     player.isActive = false;
+    this.state.currentBet =
+      player.bet > this.state.currentBet ? player.bet : this.state.currentBet;
     this.state.numberOfActivePlayers -= 1;
     player.chips = 0;
   }
@@ -280,10 +291,25 @@ export class PokerRound {
 
   updateChips() {
     if (this.state.winners) {
-      this.state.winners.forEach((winner) => {
-        winner.chips += this.state.pot / this.state.winners!.length;
-      });
-      this.state.pot = 0;
+      const allInPlayers = this.state.players.filter(
+        (player) => player.isAllIn && !player.isFolded,
+      );
+      if (allInPlayers.length > 0) {
+        const allInPot = this.state.pot / allInPlayers.length;
+        allInPlayers.forEach((player) => {
+          const chipsWon = player.bet > allInPot ? allInPot : player.bet;
+          player.chips += chipsWon;
+          this.state.pot -= chipsWon;
+        });
+        this.state.winners.forEach((winner) => {
+          if (allInPlayers.includes(winner)) {
+            return;
+          }
+          winner.chips +=
+            this.state.pot / (this.state.winners!.length - allInPlayers.length);
+        });
+        this.state.pot = 0;
+      }
     }
   }
 }

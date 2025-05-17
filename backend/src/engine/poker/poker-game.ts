@@ -25,7 +25,7 @@ export class PokerGame implements GameEngine {
       roundHistory: [],
       defaultBlindAmount: 10,
       currentRound: null,
-      lastWinner: null,
+      lastWinners: null,
       chipsInPlay: 0,
     } as PokerGameState;
   }
@@ -43,10 +43,25 @@ export class PokerGame implements GameEngine {
   }
 
   newRound() {
+    // filter out players who can't pay the blinds
+    this.state.players = this.state.players.filter(
+      (player) => player.chips < this.state.defaultBlindAmount,
+    );
+    this.state.chipsInPlay = this.state.players.reduce(
+      (acc, player) => acc + player.chips,
+      0,
+    );
+    this.state.players.forEach((player) => {
+      player.isFolded = false;
+      player.isAllIn = false;
+      player.isActive = true;
+      player.hand = [];
+      player.bet = 0;
+    });
     if (this.currentRound) {
       this.state.roundHistory.push(this.currentRound.getState());
-      this.state.lastWinner =
-        this.state.roundHistory[this.state.roundHistory.length - 1].winner;
+      this.state.lastWinners =
+        this.state.roundHistory[this.state.roundHistory.length - 1].winners;
       this.state.roundNumber++;
       this.currentRound = new PokerRound({
         players: this.players,
