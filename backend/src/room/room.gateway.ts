@@ -13,10 +13,14 @@ import { EngineService } from 'src/engine/engine.service';
 export class RoomGateway {
   @WebSocketServer() server: Server;
 
+  socketMap: Map<number, Socket>;
+
   constructor(
     private readonly roomService: RoomService,
     private readonly engineService: EngineService,
-  ) {}
+  ) {
+    this.socketMap = new Map();
+  }
 
   handleConnection(client: Socket) {
     console.log('[Gateway] Client connected:', client.id);
@@ -33,7 +37,7 @@ export class RoomGateway {
     client.join(`${data.code}_spectate`);
     client.emit('joined');
 
-    this.sendRoomUpdate(data.code);
+    this.sendRoomUpdate(data.code, []);
   }
 
   @SubscribeMessage('join-room')
@@ -52,9 +56,11 @@ export class RoomGateway {
       .addPlayer({ id: playerId, name: `Player: ${playerId}` });
 
     client.join(data.code);
-    client.emit('joined', { playerId });
+    client.emit('joined', { payload: { playerID: playerId } });
 
-    this.sendRoomUpdate(data.code);
+    this.socketMap.set(playerId, client);
+
+    this.sendRoomUpdate(data.code, []);
   }
 
   @SubscribeMessage('leave-room')
@@ -71,7 +77,7 @@ export class RoomGateway {
     client.leave(roomCode);
     client.emit('left', { roomCode });
 
-    this.sendRoomUpdate(roomCode);
+    this.sendRoomUpdate(roomCode, []);
   }
 
   @SubscribeMessage('start-game')
@@ -82,7 +88,7 @@ export class RoomGateway {
     const players = await this.roomService.getRoomPlayers(data.code);
     if (players?.length !== 2) {
       console.error(
-        'Failed to start the game due to invalid number of players',
+        `Failed to start the game due to invalid number of players: ${players?.length}`,
       );
       return;
     }
@@ -93,25 +99,31 @@ export class RoomGateway {
     //   players!.map((p) => ({ name: 'xd', id: p })),
     // );
 
-    this.engineService.getGame(data.code)?.startGame();
+    const gameEngine = this.engineService.getGame(data.code);
+    if (!gameEngine) {
+      console.error('Game not found');
+      return;
+    }
+    gameEngine.startGame();
+    gameEngine.newRound();
 
-    this.sendRoomUpdate(data.code);
+    this.sendRoomUpdate(data.code, [...this.socketMap.keys()]);
   }
 
   @SubscribeMessage('action')
   async playMove(
-    @MessageBody() data: { playerId: number; actionData?: any },
+    @MessageBody() data: { playerId: number; action?: any },
     @ConnectedSocket() client: Socket,
   ) {
     const roomCode = await this.roomService.getPlayerRoom(data.playerId);
     if (!roomCode) {
-      console.error("Player's room not found");
+      console.error(`Player's room not found ${data.playerId}`);
       return;
     }
 
     // Handle the move logic here
     console.log(
-      `Player ${data.playerId} played the move ${data.actionData.type} with ${data.actionData.amount}`,
+      `Player ${data.playerId} played the move ${data.action.type} with ${data.action.amount}`,
     );
 
     const gameEngine = this.engineService.getGame(roomCode);
@@ -119,24 +131,22 @@ export class RoomGateway {
       console.error('Failed to retrieve game');
       return;
     }
-    gameEngine.processAction(
-      data.playerId,
-      data.actionData.type,
-      data.actionData,
-    );
+    gameEngine.processAction(data.playerId, data.action.type, data.action);
 
-    this.sendRoomUpdate(roomCode, data.playerId);
+    this.sendRoomUpdate(roomCode, [...this.socketMap.keys()]);
   }
 
-  private sendRoomUpdate(code: string, playerId?: number) {
-    const state = this.getRoomState(code, playerId);
-    this.server.to(code).emit('update-room', { data: state?.player });
+  private sendRoomUpdate(code: string, playerIds: number[]) {
+    const state = this.getRoomState(code, playerIds);
     this.server
       .to(`${code}_spectate`)
-      .emit('update-room', { data: state?.host });
+      .emit('update-room', { payload: state?.host });
+    for (const p of state?.players ?? []) {
+      this.socketMap.get(p.playerID)?.emit('update-room', { payload: p });
+    }
   }
 
-  private getRoomState(roomCode: string, playerId?: number) {
+  private getRoomState(roomCode: string, playerIds: number[]) {
     const gameEngine = this.engineService.getGame(roomCode);
     if (!gameEngine) {
       console.error('Failed to retrieve the game');
@@ -153,17 +163,19 @@ export class RoomGateway {
       isActive: p.isActive,
     }));
 
-    let playerData: any = undefined;
-    if (playerId != undefined && gameState.round) {
-      const myPlayerIndex = gameEngine.getPlayerIdx(playerId);
+    let playerData: any[] = [];
+    for (const pid of playerIds) {
+      const myPlayerIndex = gameEngine.getPlayerIdx(pid);
       const myPlayer = players[myPlayerIndex!];
-      playerData = {
+      playerData.push({
         ...myPlayer,
-        isMyTurn: gameState.round.currentPlayerIndex == myPlayerIndex,
-        cards: gameState.game.players[myPlayerIndex!].hand,
-      };
+        isMyTurn: gameState.round?.currentPlayerIndex == myPlayerIndex,
+        cards: gameState.game.players[0].hand.map((x) => ({
+          suit: x.color,
+          rank: x.rank,
+        })),
+      });
     }
-
     return {
       host: {
         players,
@@ -171,7 +183,7 @@ export class RoomGateway {
         potSize: gameState.game.chipsInPlay,
         cards: gameState.round?.communityCards,
       },
-      player: playerData,
+      players: playerData,
     };
   }
 }

@@ -11,6 +11,7 @@ type CardViewerProps = {
 };
 
 export default function CardViewer({ card, back, readyToShow }: CardViewerProps) {
+  console.log(card);
   const [showCard, setShowCard] = useState(false);
   const cardImageBack = cardBackMap[back];
   const suit = card?.suit ?? "spade";

@@ -55,9 +55,9 @@ export class PokerGame implements GameEngine {
 
   newRound() {
     // filter out players who can't pay the blinds
-    this.state.players = this.state.players.filter(
-      (player) => player.chips < this.state.defaultBlindAmount,
-    );
+    // this.state.players = this.state.players.filter(
+    //   (player) => player.chips < this.state.defaultBlindAmount,
+    // );
     this.state.chipsInPlay = this.state.players.reduce(
       (acc, player) => acc + player.chips,
       0,
@@ -88,6 +88,8 @@ export class PokerGame implements GameEngine {
     } else {
       throw new Error('No current round to end');
     }
+
+    this.currentRound.startRound()
   }
 
   endGame() {

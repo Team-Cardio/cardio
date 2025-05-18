@@ -17,8 +17,9 @@ export class GameManager {
       // Add more game types here
     }
 
-    engine.initialize();
+    engine.initialize()
     this.games.set(roomCode, engine);
+    console.log("add game")
   }
 
   getGame(roomCode: string): GameEngine | undefined {

@@ -41,6 +41,7 @@ export function usePlayerConnection(code: string) {
     });
 
     ws.on("update-room", (data: PlayerPayload) => {
+      console.log(data.payload)
       setRoomData({ ...roomData, ...data.payload });
     });
 
@@ -50,11 +51,11 @@ export function usePlayerConnection(code: string) {
   }, [code]);
 
   const emitPlayerAction = (action: PlayerAction) => {
-    if (!playerId) {
+    if (playerId == undefined) {
       console.error("[WebSocket] Player ID is undefined");
       return;
     }
-    wsRef.current?.emit("action", action);
+    wsRef.current?.emit("action", {playerId, action});
   };
 
   const disconnect = () => {
