@@ -12,9 +12,9 @@ import MoneyAmount from "@/src/components/MoneyAmount";
 import { usePlayerConnection } from "@/src/hooks/usePlayerConnection";
 import NumberInputModal from "@/src/components/AmountModal";
 
-const Chip1 = require("@/assets/images/chips/chip_1.png");
-const Chip5 = require("@/assets/images/chips/chip_5.png");
-const Chip25 = require("@/assets/images/chips/chip_25.png");
+const Chip1 = require("@/assets/images/chips/monte_carlo/chip_1.png");
+const Chip5 = require("@/assets/images/chips/monte_carlo/chip_5.png");
+const Chip25 = require("@/assets/images/chips/monte_carlo/chip_25.png");
 
 type Props = BottomTabScreenProps<PlayerTabParamList, "Tab2">;
 
