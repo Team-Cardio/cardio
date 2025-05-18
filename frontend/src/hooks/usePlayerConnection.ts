@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import { PlayerAction, PlayerPayload, PlayerRoomData } from "../types/RoomData";
 
-export function useWebSocket(code: string) {
+export function usePlayerConnection(code: string) {
   const wsRef = useRef<Socket>();
-  const [playerId, setPlayerId] = useState<number>();
-  const [roomData, setRoomData] = useState<any>({}); // TODO type
+  const [playerId, setPlayerId] = useState<string>();
+  const [roomData, setRoomData] = useState<PlayerRoomData>({
+    playerID: "",
+    isMyTurn: true,
+    isActive: true,
+    isAllIn: false,
+    chips: 0,
+    currentBet: 0,
+    cards: [],
+  });
 
   useEffect(() => {
     const ws = io("http://localhost:3000/ws/game", {
@@ -27,11 +36,11 @@ export function useWebSocket(code: string) {
       console.error("[WebSocket] Error:", err);
     });
 
-    ws.on("joined", (data: any) => {
-      setPlayerId(data.payload.playerId);
+    ws.on("joined", (data: PlayerPayload) => {
+      setPlayerId(data.payload.playerID);
     });
 
-    ws.on("update-room", (data: any) => {
+    ws.on("update-room", (data: PlayerPayload) => {
       setRoomData({ ...roomData, ...data.payload });
     });
 
@@ -40,7 +49,7 @@ export function useWebSocket(code: string) {
     };
   }, [code]);
 
-  const emitPlayerAction = (action: any) => {
+  const emitPlayerAction = (action: PlayerAction) => {
     if (!playerId) {
       console.error("[WebSocket] Player ID is undefined");
       return;

@@ -5,43 +5,47 @@ import { RootStackParamList } from '@/src/types/navigation';
 
 import GoHomeButton from '@/src/components/GoHomeButton';
 import CardViewer from '@/src/components/CardViewer';
-import { Back } from '@/src/types/cards';
+import { Back } from '@/src/types/RoomData';
 import DraggableStack from '../components/DraggableStack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useHostConnection } from '../hooks/useHostConnection';
+import PlayerBar from '../components/PlayerBar';
 
 const Chip1 = require('@/assets/images/chips/chip_1.png');
 const Chip5 = require('@/assets/images/chips/chip_5.png');
 const Chip25 = require('@/assets/images/chips/chip_25.png');
-const Motive : Back = 'tcsDark';
+const Motive: Back = 'tcsDark';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Host'>;
 
-export default function PlayerTab1({ route }: Props) {
+export default function HostScreen({ route }: Props) {
   const roomCode = route.params.code;
+  const { emitHostAction, roomData } = useHostConnection(roomCode);
+  const cards = roomData?.cards ?? [];
+
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <>
       <View style={styles.headerContainer}>
         <Text style={styles.text}>TABLE</Text>
         <Text style={styles.text}>Room code: {roomCode}</Text>
       </View>
+      <PlayerBar players={roomData?.players} curentPlayer={roomData.currentPlayer} />
       <View style={styles.buttons}>
         <GoHomeButton />
       </View>
+      <View style={{ alignItems: "center" }}>
+        <Text style={styles.text}>POT: {roomData.potSize}</Text>
+      </View>
       <View style={styles.main}>
         <View style={styles.cardsContainer}>
-          <CardViewer suit='heart' rank='2' back={Motive} />
-          <CardViewer suit='spade' rank='7' back={Motive} />
-          <CardViewer suit='diamond' rank='9' back={Motive} />
-          <CardViewer suit='club' rank='5' back={Motive} />
-          <CardViewer suit='club' rank='A' back={Motive} />
-        </View>
-        <View style={styles.chipsContainer}>
-          <DraggableStack image={Chip1} />
-          <DraggableStack image={Chip5} />
-          <DraggableStack image={Chip25} />
+          <CardViewer card={cards[0]} back={Motive} readyToShow={cards.length > 0} shouldUseConstSize disable />
+          <CardViewer card={cards[1]} back={Motive} readyToShow={cards.length > 1} shouldUseConstSize disable />
+          <CardViewer card={cards[2]} back={Motive} readyToShow={cards.length > 2} shouldUseConstSize disable />
+          <CardViewer card={cards[3]} back={Motive} readyToShow={cards.length > 3} shouldUseConstSize disable />
+          <CardViewer card={cards[4]} back={Motive} readyToShow={cards.length > 4} shouldUseConstSize disable />
         </View>
       </View>
-    </GestureHandlerRootView>
+    </>
   );
 }
 
@@ -71,9 +75,10 @@ const styles = StyleSheet.create({
   main: {
     flexDirection: 'row',
     height: "100%",
+    alignItems: 'center',
   },
   cardsContainer: {
-    flex: 2,
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
