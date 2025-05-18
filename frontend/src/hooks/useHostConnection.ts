@@ -5,17 +5,10 @@ import { HostPayload, HostRoomData, PlayerAction } from "../types/RoomData";
 export function useHostConnection(code: string) {
     const wsRef = useRef<Socket>();
     const [roomData, setRoomData] = useState<HostRoomData>({
-        players: [{
-            playerID: "player",
-            chips: 100,
-            currentBet: 200,
-            isActive: true,
-            isAllIn: false,
-            isFolded: false
-        }],
-        currentPlayer: "player",
-        potSize: 1000,
-        cards: [{ rank: "A", suit: "club" }],
+        players: [],
+        currentPlayer: "",
+        potSize: 0,
+        cards: [],
     });
 
     useEffect(() => {
