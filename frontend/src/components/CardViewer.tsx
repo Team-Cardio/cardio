@@ -1,28 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { type Suit, type Rank, type Back } from '@/src/types/cards';
+import { type Back, Card } from '@/src/types/RoomData'
 import { cardBackMap, cardMap } from '@/src/components/CardMap';
 
 type CardViewerProps = {
-  suit: Suit;
-  rank: Rank;
+  card?: Card
   back: Back;
+  readyToShow: boolean
 };
 
-export default function CardViewer({ suit, rank, back }: CardViewerProps) {
-  const [showCardFront, setShowCardFront] = useState(false);
-
-  const cardImageFront = cardMap[suit]?.[rank];
+export default function CardViewer({ card, back, readyToShow }: CardViewerProps) {
+  const [showCard, setShowCard] = useState(false);
   const cardImageBack = cardBackMap[back];
+  const suit = card?.suit ?? "spade";
+  const rank = card?.rank ?? "A"
+  const cardImageFront = cardMap[suit]?.[rank];
+
+  useEffect(() => {
+    if (!readyToShow) {
+      setShowCard(false);
+    }
+  }, [readyToShow]);
 
   return (
     <TouchableOpacity
-      onPress={() => setShowCardFront(!showCardFront)}
+      onPress={() => setShowCard(!showCard)}
       style={styles.cardContainer}
     >
       <Animated.Image
-        source={showCardFront ? cardImageFront : cardImageBack}
+        source={readyToShow && showCard ? cardImageFront : cardImageBack}
         style={styles.image}
         resizeMode={"contain"}
       />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function PlayerTab1() {
+export default function PlayerTab3() {
     return (
         <View style={styles.container}>
             <Text>Player Tab 3</Text>
