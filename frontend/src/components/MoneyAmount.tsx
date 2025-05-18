@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 
 interface Props {
   moneyAmount: number
+  highLightStyles?: StyleProp<ViewStyle>,
 }
 
-export default function AddChipButton({ moneyAmount }: Props) {
+export default function AddChipButton({ moneyAmount, highLightStyles }: Props) {
   return (
-    <View style={styles.button}>
+    <View style={[styles.button, highLightStyles]}>
       <Text style={styles.buttonText}>${moneyAmount}</Text>
     </View>
   );

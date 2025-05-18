@@ -8,14 +8,18 @@ type CardViewerProps = {
   card?: Card
   back: Back;
   readyToShow: boolean
+  shouldUseConstSize?: boolean
+  disable?: boolean
 };
 
-export default function CardViewer({ card, back, readyToShow }: CardViewerProps) {
+export default function CardViewer({ card, back, readyToShow, shouldUseConstSize, disable }: CardViewerProps) {
   const [showCard, setShowCard] = useState(false);
   const cardImageBack = cardBackMap[back];
   const suit = card?.suit ?? "spade";
   const rank = card?.rank ?? "A"
   const cardImageFront = cardMap[suit]?.[rank];
+
+  const shouldShowFront = disable ? readyToShow : readyToShow && showCard;
 
   useEffect(() => {
     if (!readyToShow) {
@@ -26,10 +30,10 @@ export default function CardViewer({ card, back, readyToShow }: CardViewerProps)
   return (
     <TouchableOpacity
       onPress={() => setShowCard(!showCard)}
-      style={styles.cardContainer}
+      style={[styles.cardContainer, shouldUseConstSize && { width: 200 }]}
     >
       <Animated.Image
-        source={readyToShow && showCard ? cardImageFront : cardImageBack}
+        source={shouldShowFront ? cardImageFront : cardImageBack}
         style={styles.image}
         resizeMode={"contain"}
       />
