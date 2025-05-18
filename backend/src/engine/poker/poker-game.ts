@@ -96,21 +96,24 @@ export class PokerGame implements GameEngine {
       this.newRound();
       return;
     }
+    if (this.state.gameOver) {
+      throw new Error('Game is over');
+    }
     if (!this.currentRound) {
       throw new Error('No current round to process action');
     }
     if (this.currentRound.getState().currentPlayerIndex !== playerId) {
       throw new Error(`It's not your turn`);
     }
-    this.currentRound?.processAction(
+    const state = this.currentRound?.processAction(
       playerId,
       action as PokerGameAction,
       payload,
     );
 
-    if (this.currentRound?.getState().gameOver) {
-      this.state.players = this.currentRound.getState().players;
-      this.state.chipsInPlay = this.currentRound.getState().pot;
+    if (state.gameOver) {
+      this.state.gameOver = true;
+      this.state.chipsInPlay = state.pot;
     }
   }
 
