@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { PlayerTabParamList } from "@/src/types/navigation";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
@@ -6,12 +6,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import GoHomeButton from "@/src/components/GoHomeButton";
 import CardViewer from "@/src/components/CardViewer";
-import AddChipButton from "@/src/components/AddChipButton";
-import SingleChip from "@/src/components/SingleChip";
 import DraggableStack from "@/src/components/DraggableStack";
 import ControllButton from "@/src/components/ControllButton";
 import MoneyAmount from "@/src/components/MoneyAmount";
-import { useWebSocket } from "@/src/hooks/useWebSocket";
+import { usePlayerConnection } from "@/src/hooks/usePlayerConnection";
+import NumberInputModal from "@/src/components/AmountModal";
 
 const Chip1 = require("@/assets/images/chips/chip_1.png");
 const Chip5 = require("@/assets/images/chips/chip_5.png");
@@ -19,49 +18,72 @@ const Chip25 = require("@/assets/images/chips/chip_25.png");
 
 type Props = BottomTabScreenProps<PlayerTabParamList, "Tab2">;
 
-const PlayerTab1 = ({ route }: Props) => {
+const PlayerTab2 = ({ route }: Props) => {
+  const [amountModalVisble, setAmountModalVisible] = useState<boolean>(false);
   const roomCode = route.params.code;
 
-  const { emitPlayerAction, roomData } = useWebSocket(roomCode);
+  const { emitPlayerAction, roomData } = usePlayerConnection(roomCode);
+  const cards = roomData.cards;
 
-  const doFold = () => {
+  const doFold = useCallback(() => {
     console.log("Fold");
     emitPlayerAction({ type: "fold" });
-  };
-  const doBet = (amount: number) => {
+  }, [emitPlayerAction]);
+  const doBet = useCallback((amount: number) => {
     console.log(`Bet ${amount}`);
     emitPlayerAction({ type: "bet", amount });
-  };
+  }, [emitPlayerAction]);
+  const doWait = useCallback(() => {
+    console.log("Wait");
+    if (roomData.currentBet > 0) {
+      emitPlayerAction({ type: 'call' });
+    } else {
+      emitPlayerAction({ type: 'check' });
+    }
+  }, [emitPlayerAction]);
 
-  return (
+  const shouldShowWaitText = !roomData.isMyTurn && !roomData.isAllIn;
+  const shouldShowActionButtons = roomData.isMyTurn && roomData.isActive;
+
+  return (<>
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.text}>Player #</Text>
+        <Text style={styles.text}>Player {roomData.playerID} </Text>
         <Text style={styles.text}>Room code: {roomCode}</Text>
       </View>
       <View style={styles.buttons}>
         <GoHomeButton />
-        <AddChipButton />
+      </View>
+      <View>
+        {shouldShowWaitText && <Text style={styles.text}> Wait for other players</Text>}
+        {roomData.isAllIn && <Text style={styles.text}> YOU ARE ALL IN! </Text>}
       </View>
       <View style={styles.chipsContainer}>
-        <DraggableStack image={Chip1} />
-        <DraggableStack image={Chip5} />
-        <DraggableStack image={Chip25} />
+        {!amountModalVisble && (
+          <>
+            < DraggableStack image={Chip1} />
+            <DraggableStack image={Chip5} />
+            <DraggableStack image={Chip25} />
+          </>
+        )}
       </View>
       <View style={styles.controll}>
-        <ControllButton title="Fold" onPress={doFold} />
-        <MoneyAmount moneyAmount={5000} />
-        <ControllButton title="Bet/Wait" onPress={() => doBet(10)} />
+        {shouldShowActionButtons && <ControllButton title="Fold" onPress={doFold} />}
+        <MoneyAmount moneyAmount={roomData.chips} />
+        {shouldShowActionButtons && <ControllButton title="Bet" onPress={() => setAmountModalVisible(true)} />}
       </View>
+      {shouldShowActionButtons && <ControllButton title="Call/Wait" onPress={doWait} />}
       <View style={styles.cardsContainer}>
-        <CardViewer suit="heart" rank="A" back="tcsDark" />
-        <CardViewer suit="spade" rank="A" back="tcsDark" />
+        <CardViewer card={cards[0]} back="tcsDark" readyToShow={cards.length > 0} />
+        <CardViewer card={cards[1]} back="tcsDark" readyToShow={cards.length > 0} />
       </View>
+      <NumberInputModal isVisible={amountModalVisble} onClose={() => setAmountModalVisible(false)} onConfirm={doBet} />
     </GestureHandlerRootView>
+  </>
   );
 };
 
-export default PlayerTab1;
+export default PlayerTab2;
 
 const styles = StyleSheet.create({
   container: {
