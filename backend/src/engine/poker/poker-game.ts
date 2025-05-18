@@ -1,6 +1,11 @@
 import { GameEngine } from '../game-engine.interface';
 import { gamePlayer } from '../utils/game-types';
-import { PokerGameAction, PokerGameState, PokerPlayer } from './poker-types';
+import {
+  PokerGameAction,
+  PokerGameState,
+  PokerPlayer,
+  PokerRoundState,
+} from './poker-types';
 import { PokerRound } from './logic/poker-round';
 
 export class PokerGame implements GameEngine {
@@ -8,18 +13,10 @@ export class PokerGame implements GameEngine {
   private state: PokerGameState;
   private currentRound: PokerRound | null;
 
-  initialize(players: gamePlayer[]) {
-    this.players = players.map((player) => ({
-      ...player,
-      chips: 100, //TODO is that correct value
-      hand: [],
-      bet: 0,
-      isAllIn: false,
-      isFolded: false,
-      isActive: true,
-    }));
+  initialize() {
+    this.players = [];
     this.state = {
-      players: this.players,
+      players: [],
       roundNumber: 0,
       gameOver: false,
       roundHistory: [],
@@ -30,7 +27,21 @@ export class PokerGame implements GameEngine {
     } as PokerGameState;
   }
 
+  addPlayer(player: gamePlayer): void {
+    this.players.push({
+      ...player,
+      chips: 100, //TODO is that correct value
+      hand: [],
+      bet: 0,
+      isAllIn: false,
+      isFolded: false,
+      isActive: true,
+    });
+    this.state.players = this.players;
+  }
+
   startGame() {
+    this.state.players = this.players;
     this.state.roundNumber = 1;
     this.state.roundHistory = [];
     this.currentRound = new PokerRound({
@@ -103,7 +114,9 @@ export class PokerGame implements GameEngine {
       throw new Error('No current round to process action');
     }
     if (this.currentRound.getState().currentPlayerIndex !== playerId) {
-      throw new Error(`It's not your turn`);
+      throw new Error(
+        `It's not your turn ${this.currentRound.getState().currentPlayerIndex} ${playerId}`,
+      );
     }
     const state = this.currentRound?.processAction(
       playerId,
@@ -117,7 +130,11 @@ export class PokerGame implements GameEngine {
     }
   }
 
-  getState(): PokerGameState {
-    return this.state;
+  getState() {
+    return { game: this.state, round: this.currentRound?.getState() };
+  }
+
+  getPlayerIdx(playerId: number) {
+    return this.players.findIndex((p) => p.id === playerId);
   }
 }

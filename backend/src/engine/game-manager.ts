@@ -1,26 +1,23 @@
 import { GameEngine } from './game-engine.interface';
 import { PokerGame } from './poker/poker-game';
-import { gameType } from './utils/game-types';
+import { gamePlayer, gameType } from './utils/game-types';
 
 export class GameManager {
   private games: Map<string, GameEngine> = new Map();
-  private roomCode: string;
 
-  constructor(code: string) {
-    this.roomCode = code;
-  }
-
-  createGame(roomCode: string, type: gameType, players: any[]) {
+  createGame(roomCode: string, type: gameType) {
     let engine: GameEngine;
 
     switch (type) {
       case 'poker':
         engine = new PokerGame();
         break;
+      default:
+        throw Error("Game not recognized")
       // Add more game types here
     }
 
-    engine.initialize(players);
+    engine.initialize();
     this.games.set(roomCode, engine);
   }
 

@@ -3,19 +3,25 @@ import { Injectable } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { REDIS } from './const';
 import { generateCode } from './utils';
+import { EngineService } from 'src/engine/engine.service';
 
 @Injectable()
 export class RoomService {
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  constructor(
+    @InjectRedis() private readonly redis: Redis,
+    private readonly engineService: EngineService 
+) {}
 
   async create(): Promise<string> {
     const code = generateCode();
 
-    const roomKey = REDIS.getRoomKey(code);
+    const roomSetKey = REDIS.getRoomSetKey();
     const playerCounterKey = REDIS.getPlayerCounterKey();
 
-    await this.redis.sadd(roomKey, ''); // :((
-    await this.redis.set(playerCounterKey, 0);
+    await this.redis.sadd(roomSetKey, code); // :((
+    await this.redis.set(playerCounterKey, -1);
+
+    this.engineService.createGame(code, 'poker')
 
     return code;
   }
@@ -23,11 +29,11 @@ export class RoomService {
   async join(code: string): Promise<number | null> {
     const roomKey = REDIS.getRoomKey(code);
     const playerCounterKey = REDIS.getPlayerCounterKey();
-
-    const roomExists = await this.redis.exists(roomKey);
-    if (!roomExists) {
-      return null;
-    }
+    
+    // const roomExists = await this.redis.sismember(roomKey);
+    // if (!roomExists) {
+    //   return null;
+    // }
 
     const playerId = await this.redis.incr(playerCounterKey);
 
@@ -39,13 +45,8 @@ export class RoomService {
     return playerId;
   }
 
-  async getRoomPlayers(code: string): Promise<number[] | null> {
+  async getRoomPlayers(code: string): Promise<number[]|null> {
     const roomKey = REDIS.getRoomKey(code);
-
-    const roomExists = await this.redis.exists(roomKey);
-    if (!roomExists) {
-      return null;
-    }
 
     const playerKeys = await this.redis.smembers(roomKey);
     const playerIds = playerKeys.map((k) => Number(k)); // redis stores values as string
@@ -56,13 +57,7 @@ export class RoomService {
   async getPlayerRoom(playerId: number): Promise<string | null> {
     const playerRoomKey = REDIS.getPlayerRoomKey(playerId);
 
-    const playerRoomExists = await this.redis.exists(playerRoomKey);
-    if (!playerRoomExists) {
-      return null;
-    }
-
     const roomCode = await this.redis.get(playerRoomKey);
-
     return roomCode;
   }
 }
