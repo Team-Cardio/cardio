@@ -4,3 +4,4 @@ export const REDIS = {
   getPlayerCounterKey: () => `player:counter`,
   getPlayerRoomKey: (playerId: number) => `player:${playerId}:room`,
 };
+

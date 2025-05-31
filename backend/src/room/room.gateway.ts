@@ -6,20 +6,20 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { RoomService } from './room.service';
 import { EngineService } from 'src/engine/engine.service';
+import { RoomService } from './room.service';
+import { getCardRankName } from './utils';
 
 @WebSocketGateway({ namespace: '/ws/game', cors: true })
 export class RoomGateway {
   @WebSocketServer() server: Server;
 
   socketMap: Map<number, Socket>;
+  rejoinMap: Map<Socket, number>;
 
-  constructor(
-    private readonly roomService: RoomService,
-    private readonly engineService: EngineService,
-  ) {
+  constructor(private readonly roomService: RoomService) {
     this.socketMap = new Map();
+    this.rejoinMap = new Map();
   }
 
   handleConnection(client: Socket) {
@@ -37,30 +37,38 @@ export class RoomGateway {
     client.join(`${data.code}_spectate`);
     client.emit('joined');
 
-    this.sendRoomUpdate(data.code, []);
+    client.emit('update-room', { payload: this.getRoomState(data.code)?.host });
   }
 
   @SubscribeMessage('join-room')
   async handleJoinRoom(
-    @MessageBody() data: { code: string },
+    @MessageBody() data: { code: string; playerId: number | undefined },
     @ConnectedSocket() client: Socket,
   ) {
-    const playerId = await this.roomService.join(data.code);
-    console.log(`Player ${playerId} has joined the room ${data.code}`);
-    if (playerId == undefined) {
-      client.emit('error', 'Room not found');
-      return;
+    let playerId: number;
+
+    if (data.playerId == undefined) {
+      const {
+        playerId: _playerId,
+        success,
+        errorMsg,
+      } = await this.roomService.join(data.code);
+
+      if (!success) {
+        client.emit('error', { error: errorMsg });
+        console.error('error while joining');
+        return;
+      }
+
+      playerId = _playerId;
+      this.socketMap.set(playerId, client);
+      this.rejoinMap.set(client, playerId);
+    } else {
+      playerId = data.playerId;
     }
-    this.engineService
-      .getGame(data.code)!
-      .addPlayer({ id: playerId, name: `Player: ${playerId}` });
 
-    client.join(data.code);
     client.emit('joined', { payload: { playerID: playerId } });
-
-    this.socketMap.set(playerId, client);
-
-    this.sendRoomUpdate(data.code, []);
+    this.sendRoomUpdate(data.code);
   }
 
   @SubscribeMessage('leave-room')
@@ -68,16 +76,19 @@ export class RoomGateway {
     @MessageBody() data: { playerId: number },
     @ConnectedSocket() client: Socket,
   ) {
-    const roomCode = await this.roomService.getPlayerRoom(data.playerId);
-    if (!roomCode) {
+    const { success, roomCode } = await this.roomService.getPlayerGame(
+      data.playerId,
+    );
+    if (!success) {
       console.error("Player's room not found");
       return;
     }
 
-    client.leave(roomCode);
-    client.emit('left', { roomCode });
+    this.socketMap.delete(data.playerId);
+    this.rejoinMap.delete(client);
 
-    this.sendRoomUpdate(roomCode, []);
+    client.emit('left', { roomCode });
+    this.sendRoomUpdate(roomCode);
   }
 
   @SubscribeMessage('start-game')
@@ -85,29 +96,14 @@ export class RoomGateway {
     @MessageBody() data: { code: string },
     @ConnectedSocket() client: Socket,
   ) {
-    const players = await this.roomService.getRoomPlayers(data.code);
-    if (players?.length !== 2) {
-      console.error(
-        `Failed to start the game due to invalid number of players: ${players?.length}`,
-      );
+    const { success, errorMsg } = this.roomService.startGame(data.code);
+    if (!success) {
+      console.error(errorMsg);
+      client.emit('error', { error: errorMsg });
       return;
     }
 
-    // this.engineService.createGame(
-    //   data.code,
-    //   'poker',
-    //   players!.map((p) => ({ name: 'xd', id: p })),
-    // );
-
-    const gameEngine = this.engineService.getGame(data.code);
-    if (!gameEngine) {
-      console.error('Game not found');
-      return;
-    }
-    gameEngine.startGame();
-    gameEngine.newRound();
-
-    this.sendRoomUpdate(data.code, [...this.socketMap.keys()]);
+    this.sendRoomUpdate(data.code);
   }
 
   @SubscribeMessage('action')
@@ -115,29 +111,19 @@ export class RoomGateway {
     @MessageBody() data: { playerId: number; action?: any },
     @ConnectedSocket() client: Socket,
   ) {
-    const roomCode = await this.roomService.getPlayerRoom(data.playerId);
-    if (!roomCode) {
-      console.error(`Player's room not found ${data.playerId}`);
+    const { success, errorMsg, roomCode } =
+      await this.roomService.performAction(data.playerId, data.action);
+    if (!success) {
+      console.error(errorMsg);
+      client.emit('error', { error: errorMsg });
       return;
     }
 
-    // Handle the move logic here
-    console.log(
-      `Player ${data.playerId} played the move ${data.action.type} with ${data.action.amount}`,
-    );
-
-    const gameEngine = this.engineService.getGame(roomCode);
-    if (!gameEngine) {
-      console.error('Failed to retrieve game');
-      return;
-    }
-    gameEngine.processAction(data.playerId, data.action.type, data.action);
-
-    this.sendRoomUpdate(roomCode, [...this.socketMap.keys()]);
+    this.sendRoomUpdate(roomCode);
   }
 
-  private sendRoomUpdate(code: string, playerIds: number[]) {
-    const state = this.getRoomState(code, playerIds);
+  private sendRoomUpdate(code: string) {
+    const state = this.getRoomState(code);
     this.server
       .to(`${code}_spectate`)
       .emit('update-room', { payload: state?.host });
@@ -146,15 +132,15 @@ export class RoomGateway {
     }
   }
 
-  private getRoomState(roomCode: string, playerIds: number[]) {
-    const gameEngine = this.engineService.getGame(roomCode);
-    if (!gameEngine) {
+  private getRoomState(roomCode: string) {
+    const { success, game } = this.roomService.getGame(roomCode);
+    if (!success) {
       console.error('Failed to retrieve the game');
       return;
     }
-    const gameState = gameEngine.getState();
+    const { game: gameState, round: roundState } = game.getState();
 
-    const players = gameState.game.players.map((p) => ({
+    const playersPublic = gameState.players.map((p) => ({
       playerID: p.id,
       chips: p.chips,
       currentBet: p.bet,
@@ -164,24 +150,24 @@ export class RoomGateway {
     }));
 
     let playerData: any[] = [];
-    for (const pid of playerIds) {
-      const myPlayerIndex = gameEngine.getPlayerIdx(pid);
-      const myPlayer = players[myPlayerIndex!];
+    for (let playerIdx = 0; playerIdx < gameState.players.length; ++playerIdx) {
       playerData.push({
-        ...myPlayer,
-        isMyTurn: gameState.round?.currentPlayerIndex == myPlayerIndex,
-        cards: gameState.game.players[0].hand.map((x) => ({
-          suit: x.color,
-          rank: x.rank,
+        ...playersPublic[playerIdx],
+
+        isMyTurn: roundState?.currentPlayerIndex == playerIdx,
+        cards: gameState.players[playerIdx].hand.map((card) => ({
+          suit: card.color,
+          rank: getCardRankName(card.rank),
         })),
       });
     }
+
     return {
       host: {
-        players,
-        currentPlayer: gameState.round?.currentPlayerIndex,
-        potSize: gameState.game.chipsInPlay,
-        cards: gameState.round?.communityCards,
+        players: playersPublic,
+        currentPlayer: roundState?.currentPlayerIndex,
+        potSize: gameState.chipsInPlay,
+        cards: roundState?.communityCards,
       },
       players: playerData,
     };

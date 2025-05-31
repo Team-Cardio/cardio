@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GameManager } from './game-manager';
-import { GameEngine } from './game-engine.interface';
 import { gameType } from './utils/game-types';
+import { PokerGame } from './poker/poker-game';
 
 @Injectable()
 export class EngineService {
@@ -14,7 +14,7 @@ export class EngineService {
     this.gameManager.createGame(code, type)
   }
 
-  getGame(code: string): GameEngine | undefined {
+  getGame(code: string): PokerGame | undefined {
     return this.gameManager.getGame(code)
   }
 

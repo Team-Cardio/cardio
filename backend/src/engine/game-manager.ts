@@ -1,12 +1,11 @@
-import { GameEngine } from './game-engine.interface';
 import { PokerGame } from './poker/poker-game';
 import { gamePlayer, gameType } from './utils/game-types';
 
 export class GameManager {
-  private games: Map<string, GameEngine> = new Map();
+  private games: Map<string, PokerGame> = new Map();
 
   createGame(roomCode: string, type: gameType) {
-    let engine: GameEngine;
+    let engine: PokerGame;
 
     switch (type) {
       case 'poker':
@@ -22,7 +21,7 @@ export class GameManager {
     console.log("add game")
   }
 
-  getGame(roomCode: string): GameEngine | undefined {
+  getGame(roomCode: string): PokerGame | undefined {
     return this.games.get(roomCode);
   }
 

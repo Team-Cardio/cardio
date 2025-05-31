@@ -39,7 +39,6 @@ export type PokerRoundState = {
 
 // The state of the game consisting of multiple rounds
 export type PokerGameState = {
-  players: PokerPlayer[];
   roundNumber: number;
   lastWinners: PokerPlayer[] | null;
   gameOver: boolean;
