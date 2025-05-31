@@ -24,6 +24,7 @@ type PlayerRoomData = {
 
 type Player = {
     playerID: string,
+    name: string
     chips: number,
     currentBet: number,
     isAllIn: boolean,
@@ -35,7 +36,8 @@ type HostRoomData = {
     players: Player[],
     currentPlayer: string, //player whoes decisoin we are wating for
     potSize: number,
-    cards: Card[]
+    cards: Card[],
+    gameStarted: boolean
 }
 
 type PlayerPayload = {

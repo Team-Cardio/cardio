@@ -11,9 +11,11 @@ type PlayerBarProps = {
 const PlayerBar = ({ players = [], curentPlayer }: PlayerBarProps) => {
     const maxPlayers = 5;
     const filledPlayers = [...players];
-    while (filledPlayers.length < maxPlayers) {
+    
+    for (let i = 0; i < maxPlayers-players.length; ++i) {
         filledPlayers.push({
-            playerID: `empty`,
+            playerID: `empty_${i}`,
+            name: `Waiting...`,
             chips: 0,
             currentBet: 0,
             isActive: false,
@@ -28,7 +30,7 @@ const PlayerBar = ({ players = [], curentPlayer }: PlayerBarProps) => {
                 const isCurrentPlayer = curentPlayer === player.playerID
                 return (
                     <View key={player.playerID} style={[styles.playerBox]}>
-                        <Text style={styles.text}>{player.playerID}</Text>
+                        <Text style={styles.text}>{player.name}</Text>
                         <View style={{ padding: 10 }}>
                             <MoneyAmount moneyAmount={player.chips} highLightStyles={isCurrentPlayer && styles.highlight} />
                         </View>
@@ -55,7 +57,7 @@ const styles = StyleSheet.create({
     },
     playerBox: {
         flex: 1,
-        maxWidth: 80,
+        maxWidth: 100,
         height: 80,
         backgroundColor: '#f0f0f0',
         marginHorizontal: 4,

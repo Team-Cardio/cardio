@@ -9,6 +9,7 @@ export function useHostConnection(code: string) {
         currentPlayer: "",
         potSize: 0,
         cards: [],
+        gameStarted: false
     });
 
     useEffect(() => {
@@ -41,8 +42,8 @@ export function useHostConnection(code: string) {
         };
     }, [code]);
 
-    const emitHostAction = (action: PlayerAction) => {
-        wsRef.current?.emit("action", action);
+    const startGame = () => {
+        wsRef.current?.emit("start-game", { code });
     };
 
     const disconnect = () => {
@@ -51,7 +52,7 @@ export function useHostConnection(code: string) {
 
     return {
         disconnect,
-        emitHostAction,
+        startGame,
         roomData
     };
 }
