@@ -17,6 +17,7 @@ export class PokerGame {
       currentRound: null,
       lastWinners: null,
       chipsInPlay: 0,
+      gameStarted: false
     } as PokerGameState;
   }
 
@@ -35,6 +36,7 @@ export class PokerGame {
   startGame() {
     this.state.roundNumber = 1;
     this.state.roundHistory = [];
+    this.state.gameStarted = true;
     this.currentRound = new PokerRound({
       players: this.players,
       bigBlindAmount: this.state.defaultBlindAmount,

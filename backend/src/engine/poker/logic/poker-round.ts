@@ -52,7 +52,7 @@ export class PokerRound {
   createDeck() {
     const deck: Card[] = [];
     for (const color of Object.values(Color)) {
-      for (const rank of Object.values(Rank)) {
+      for (let rank = 1; rank <= 13; ++rank) {
         deck.push({ color: color as Color, rank: rank as Rank });
       }
     }

@@ -10,9 +10,7 @@ export const generateCode = () => {
 };
 
 export const getCardRankName = (rank: Rank) => {
-  if (rank >= Rank.TWO && rank <= Rank.TEN)
-    return rank.toString();
-  if (rank >= Rank.JACK && rank <= Rank.KING)
-    return ['J', 'Q', 'K'][rank - Rank.JACK];
-  return 'A';
+  if (rank == 1) return 'A';
+  if (rank >= 2 && rank <= 10) return rank.toString();
+  return ['J', 'Q', 'K'][rank - 11];
 };

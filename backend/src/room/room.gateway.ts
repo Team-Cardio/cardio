@@ -6,7 +6,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { EngineService } from 'src/engine/engine.service';
 import { RoomService } from './room.service';
 import { getCardRankName } from './utils';
 
@@ -142,6 +141,7 @@ export class RoomGateway {
 
     const playersPublic = gameState.players.map((p) => ({
       playerID: p.id,
+      name: p.name,
       chips: p.chips,
       currentBet: p.bet,
       isAllIn: p.isAllIn,
@@ -167,7 +167,11 @@ export class RoomGateway {
         players: playersPublic,
         currentPlayer: roundState?.currentPlayerIndex,
         potSize: gameState.chipsInPlay,
-        cards: roundState?.communityCards,
+        cards: roundState?.communityCards.map((card) => ({
+          suit: card.color,
+          rank: getCardRankName(card.rank),
+        })),
+        gameStarted: gameState.gameStarted
       },
       players: playerData,
     };

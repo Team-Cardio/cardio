@@ -45,6 +45,7 @@ export type PokerGameState = {
   roundHistory: PokerRoundState[];
   defaultBlindAmount: number;
   chipsInPlay: number;
+  gameStarted: boolean;
 };
 
 export type PokerGameAction = 'call' | 'raise' | 'fold' | 'check' | 'allIn';
