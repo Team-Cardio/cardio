@@ -7,7 +7,7 @@ export function usePlayerConnection(code: string) {
   const [playerId, setPlayerId] = useState<string>();
   const [roomData, setRoomData] = useState<PlayerRoomData>({
     playerID: "",
-    isMyTurn: false,
+    isMyTurn: true,
     isActive: true,
     isAllIn: false,
     chips: 0,
@@ -41,7 +41,6 @@ export function usePlayerConnection(code: string) {
     });
 
     ws.on("update-room", (data: PlayerPayload) => {
-      console.log(data.payload)
       setRoomData({ ...roomData, ...data.payload });
     });
 
