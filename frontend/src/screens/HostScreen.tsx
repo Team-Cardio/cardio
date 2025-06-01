@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/src/types/navigation';
 
@@ -20,8 +20,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Host'>;
 
 export default function HostScreen({ route }: Props) {
   const roomCode = route.params.code;
-  const { emitHostAction, roomData } = useHostConnection(roomCode);
+  const { startGame, roomData } = useHostConnection(roomCode);
   const cards = roomData?.cards ?? [];
+
+  console.log(cards)
+  console.log(roomData.players)
 
   return (
     <>
@@ -32,6 +35,11 @@ export default function HostScreen({ route }: Props) {
       <PlayerBar players={roomData?.players} curentPlayer={roomData.currentPlayer} />
       <View style={styles.buttons}>
         <GoHomeButton />
+        {roomData.gameStarted || (
+          <Pressable onPress={startGame} style={{backgroundColor: 'red', alignSelf:'center'}}>
+            <Text>Start game</Text>
+          </Pressable>
+        )}
       </View>
       <View style={{ alignItems: "center" }}>
         <Text style={styles.text}>POT: {roomData.potSize}</Text>
@@ -69,8 +77,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   buttons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    alignSelf: 'center',
   },
   main: {
     flexDirection: 'row',

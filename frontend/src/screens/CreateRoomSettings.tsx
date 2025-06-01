@@ -9,10 +9,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'CreateRoomSettings'>;
 export default function CreateRoomSettings({ navigation }: Props) {
     const [loading, setLoading] = useState(false);
 
-    const createRoom = useCallback(async () => {
+    const createRoom = useCallback(async () => {   
         try {
             setLoading(true);
-            const response = await fetch('https://localhost:3000/room/create', {
+            const response = await fetch('http://localhost:3000/room/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ export default function CreateRoomSettings({ navigation }: Props) {
             }
 
             const data = await response.json();
-            const roomCode = data.roomCode;
+            const roomCode = data.code;
 
             if (!roomCode) {
                 throw new Error('Brak numeru pokoju w odpowiedzi');

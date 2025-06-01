@@ -3,66 +3,108 @@ import { Injectable } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { REDIS } from './const';
 import { generateCode } from './utils';
+import { EngineService } from 'src/engine/engine.service';
+import { PokerGame } from 'src/engine/poker/poker-game';
 
 @Injectable()
 export class RoomService {
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  constructor(
+    @InjectRedis() private readonly redis: Redis,
+    private readonly engineService: EngineService,
+  ) {}
 
   async create(): Promise<string> {
     const code = generateCode();
 
-    const roomKey = REDIS.getRoomKey(code);
+    const roomSetKey = REDIS.getRoomSetKey();
     const playerCounterKey = REDIS.getPlayerCounterKey();
 
-    await this.redis.sadd(roomKey, ''); // :((
-    await this.redis.set(playerCounterKey, 0);
+    await this.redis.sadd(roomSetKey, code); // :((
+    await this.redis.set(playerCounterKey, -1);
+
+    this.engineService.createGame(code, 'poker');
 
     return code;
   }
 
-  async join(code: string): Promise<number | null> {
+  async join(code: string): Promise<any> {
     const roomKey = REDIS.getRoomKey(code);
     const playerCounterKey = REDIS.getPlayerCounterKey();
 
-    const roomExists = await this.redis.exists(roomKey);
-    if (!roomExists) {
-      return null;
+    const game = this.engineService.getGame(code);
+    if (!game) {
+      return { success: false, errorMsg: `Room ${code} does not exist` };
     }
 
     const playerId = await this.redis.incr(playerCounterKey);
-
     await this.redis.sadd(roomKey, playerId); // :((
 
     const playerRoomKey = REDIS.getPlayerRoomKey(playerId);
     await this.redis.set(playerRoomKey, code);
 
-    return playerId;
-  }
+    game.addPlayer({ id: playerId, name: `Player: ${playerId}` });
 
-  async getRoomPlayers(code: string): Promise<number[] | null> {
-    const roomKey = REDIS.getRoomKey(code);
+    return {
+      success: true,
+      playerId,
+    };
+  } // const roomExists = await this.redis.sismember(roomKey, code);
 
-    const roomExists = await this.redis.exists(roomKey);
-    if (!roomExists) {
-      return null;
+  startGame(code: string) {
+    const gameEngine = this.engineService.getGame(code);
+    if (!gameEngine) {
+      return { success: false, errorMsg: 'Game not found' };
+    }
+    if (gameEngine.getPlayerCount() < 2) {
+      return {
+        success: false,
+        errorMsg: `Failed to start the game due to invalid number of players: ${gameEngine.getPlayerCount()}`,
+      };
     }
 
-    const playerKeys = await this.redis.smembers(roomKey);
-    const playerIds = playerKeys.map((k) => Number(k)); // redis stores values as string
-
-    return playerIds;
+    gameEngine.startGame();
+    return { success: true };
   }
 
-  async getPlayerRoom(playerId: number): Promise<string | null> {
+  async performAction(playerId: number, action: any) {
+    const { success, game, roomCode } = await this.getPlayerGame(playerId);
+    if (!success) {
+      return { success: false, errorMsg: 'Failed to find the game' };
+    }
+
+    try {
+      game.processAction(playerId, action.type, action);
+    } catch {
+      return { success: false, errorMsg: 'Failed to process the action' };
+    }
+
+    console.log(
+      `Player ${playerId} played the move ${action.type} with ${action.amount}`,
+    );
+    return { success: true, roomCode };
+  }
+
+  async getPlayerGame(
+    playerId: number,
+  ): Promise<{ success: boolean; game: any; roomCode: any }> {
     const playerRoomKey = REDIS.getPlayerRoomKey(playerId);
 
-    const playerRoomExists = await this.redis.exists(playerRoomKey);
-    if (!playerRoomExists) {
-      return null;
+    const roomCode = await this.redis.get(playerRoomKey);
+    if (!roomCode) {
+      console.error('No room found');
+      return { success: false, game: undefined, roomCode: undefined };
     }
 
-    const roomCode = await this.redis.get(playerRoomKey);
+    return { ...this.getGame(roomCode), roomCode };
+  }
 
-    return roomCode;
+  getGame(roomCode: string): { success: boolean; game: any } {
+    const game = this.engineService.getGame(roomCode);
+    if (!game) {
+      console.error('Failed to retrieve game');
+      return { success: false, game: undefined };
+    }
+
+    return { success: true, game };
   }
 }

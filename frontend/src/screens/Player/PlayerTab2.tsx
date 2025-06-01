@@ -31,7 +31,7 @@ const PlayerTab2 = ({ route }: Props) => {
   }, [emitPlayerAction]);
   const doBet = useCallback((amount: number) => {
     console.log(`Bet ${amount}`);
-    emitPlayerAction({ type: "bet", amount });
+    emitPlayerAction({ type: "raise", amount });
   }, [emitPlayerAction]);
   const doWait = useCallback(() => {
     console.log("Wait");

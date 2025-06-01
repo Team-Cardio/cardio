@@ -1,20 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { GameManager } from './game-manager';
+import { gameType } from './utils/game-types';
+import { PokerGame } from './poker/poker-game';
 
 @Injectable()
 export class EngineService {
-  private games = new Map<string, GameManager>();
-
-  createGame(code: string) {
-    const manager = new GameManager(code);
-    this.games.set(code, manager);
+  private gameManager: GameManager;
+  constructor() {
+    this.gameManager = new GameManager();
   }
 
-  getGame(code: string): GameManager | undefined {
-    return this.games.get(code);
+  createGame(code: string, type: gameType) {
+    this.gameManager.createGame(code, type)
+  }
+
+  getGame(code: string): PokerGame | undefined {
+    return this.gameManager.getGame(code)
   }
 
   removeGame(code: string) {
-    this.games.delete(code);
+    this.gameManager.removeGame(code);
   }
 }

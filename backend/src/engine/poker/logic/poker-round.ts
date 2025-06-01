@@ -3,14 +3,12 @@ import { Card, Color, Rank } from 'src/types/card';
 import {
   InitialRoundState,
   PokerGameAction,
-  PokerRoundStateEnum,
   PokerPlayer,
   PokerRoundState,
+  PokerRoundStateEnum,
 } from '../poker-types';
 
 import { PokerHandCompare } from './poker-hand-compare';
-import { max } from 'rxjs';
-import { PokerHandEval } from './poker-hand-eval';
 
 export class PokerRound {
   private players: PokerPlayer[];
@@ -33,13 +31,13 @@ export class PokerRound {
       gameOver: false,
       winners: null,
       deck: this.shuffleDeck(this.createDeck()),
-      numberOfPlayersToPlay: initialState.players.length,
-      numberOfActivePlayers: initialState.players.length,
+      numberOfPlayersToPlay: initialState.players.length, // players that are in the game
+      numberOfActivePlayers: initialState.players.length, // players since last raise
       dealerIndex: initialState.dealerIndex,
       bigBlindAmount: initialState.bigBlindAmount,
       smallBlindAmount: initialState.bigBlindAmount / 2,
       minimumBet: initialState.bigBlindAmount,
-    } as PokerRoundState;
+    };
   }
 
   shuffleDeck(deck: Card[]) {
@@ -54,7 +52,7 @@ export class PokerRound {
   createDeck() {
     const deck: Card[] = [];
     for (const color of Object.values(Color)) {
-      for (const rank of Object.values(Rank)) {
+      for (let rank = 1; rank <= 13; ++rank) {
         deck.push({ color: color as Color, rank: rank as Rank });
       }
     }
@@ -121,6 +119,7 @@ export class PokerRound {
       default:
         throw new Error('Invalid action');
     }
+
     if (this.state.numberOfPlayersToPlay === 1) {
       this.state.gameOver = true;
       this.state.winners =
@@ -133,29 +132,23 @@ export class PokerRound {
       if (this.state.roundPhase === PokerRoundStateEnum.PreFlop) {
         this.state.roundPhase = PokerRoundStateEnum.Flop;
         this.dealFlop();
-      }
-      if (this.state.roundPhase === PokerRoundStateEnum.Flop) {
+      } else if (this.state.roundPhase === PokerRoundStateEnum.Flop) {
         this.state.roundPhase = PokerRoundStateEnum.Turn;
         this.dealTurn();
-      }
-      if (this.state.roundPhase === PokerRoundStateEnum.Turn) {
+      } else if (this.state.roundPhase === PokerRoundStateEnum.Turn) {
         this.state.roundPhase = PokerRoundStateEnum.River;
         this.dealRiver();
-      }
-      if (this.state.roundPhase === PokerRoundStateEnum.River) {
+      } else if (this.state.roundPhase === PokerRoundStateEnum.River) {
         this.state.gameOver = true;
         this.chooseWinners();
         this.updateChips();
         return this.getState(); // pot might not be empty, returns here
       }
+
+      this.state.numberOfActivePlayers = this.state.numberOfPlayersToPlay;
       for (const player of this.state.players) {
-        if (player.isFolded) {
-          player.isActive = false;
-        } else {
-          player.isActive = true;
-        }
+        player.isActive = !player.isFolded;
       }
-      this.state.numberOfActivePlayers = this.state.players.length;
     }
 
     this.nextPlayer();
@@ -171,11 +164,13 @@ export class PokerRound {
       this.handleAllIn(player);
       return;
     }
+
     player.chips -= amountToCall;
     player.bet += amountToCall;
+    player.isActive = false;
+
     this.state.pot += amountToCall;
     this.state.numberOfActivePlayers -= 1;
-    player.isActive = false;
   }
 
   handleRaise(player: PokerPlayer, amount: number) {
@@ -187,18 +182,22 @@ export class PokerRound {
     if (player.chips < chipsToCall) {
       throw new Error('Not enough chips');
     }
+
     player.chips -= chipsToCall;
     player.bet += chipsToCall;
+    player.isActive = false;
+
     this.state.pot += chipsToCall;
     this.state.currentBet = fullBetAmount;
     this.state.numberOfActivePlayers -= 1;
-    player.isActive = false;
+
     this.updateActivePlayers();
   }
 
   handleFold(player: PokerPlayer) {
     player.isFolded = true;
     player.isActive = false;
+
     this.state.numberOfPlayersToPlay -= 1;
     this.state.numberOfActivePlayers -= 1;
   }
@@ -207,8 +206,10 @@ export class PokerRound {
     if (this.state.currentBet > player.bet) {
       throw new Error('Cannot check, there is a bet to call');
     }
-    if (player.isActive) this.state.numberOfActivePlayers -= 1;
+
     player.isActive = false;
+
+    this.state.numberOfActivePlayers -= 1;
   }
 
   handleAllIn(player: PokerPlayer) {
@@ -218,27 +219,29 @@ export class PokerRound {
     if (player.chips === 0) {
       throw new Error('Player has no chips to go all in');
     }
-    this.state.pot += player.chips;
+
     player.bet += player.chips;
     player.isAllIn = true;
     player.isActive = false;
-    this.state.currentBet =
-      player.bet > this.state.currentBet ? player.bet : this.state.currentBet;
-    this.state.numberOfActivePlayers -= 1;
     player.chips = 0;
+
+    this.state.pot += player.chips;
+    this.state.currentBet = Math.max(player.bet, this.state.currentBet);
+    this.state.numberOfActivePlayers -= 1;
   }
 
   nextPlayer() {
-    if (this.state.gameOver || this.state.numberOfActivePlayers <= 1) {
+    if (this.state.gameOver || this.state.numberOfPlayersToPlay <= 1) {
       this.state.gameOver = true;
       return;
     }
-    this.state.currentPlayerIndex =
-      (this.state.currentPlayerIndex + 1) % this.state.players.length;
-    const currentPlayer = this.state.players[this.state.currentPlayerIndex];
-    if (!currentPlayer.isActive) {
-      this.nextPlayer();
-    }
+
+    let currentPlayer: PokerPlayer;
+    do {
+      this.state.currentPlayerIndex =
+        (this.state.currentPlayerIndex + 1) % this.state.players.length;
+      currentPlayer = this.state.players[this.state.currentPlayerIndex];
+    } while (!currentPlayer.isActive);
   }
 
   getState() {
@@ -285,7 +288,7 @@ export class PokerRound {
     );
 
     const winners = sortedPlayers.filter(
-      (player, index) =>
+      (player) =>
         PokerHandCompare.compareHands(
           player.hand,
           this.state.communityCards,

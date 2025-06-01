@@ -1,11 +1,12 @@
 export enum Color {
-  SPADE,
-  HEART,
-  DIAMOND,
-  CLUB,
+  SPADE = 'spade',
+  HEART = 'heart',
+  DIAMOND = 'diamond',
+  CLUB = 'club',
 }
+
 export enum Rank {
-  ACE,
+  ACE = 1,
   TWO,
   THREE,
   FOUR,
