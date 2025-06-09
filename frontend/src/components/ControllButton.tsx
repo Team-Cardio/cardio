@@ -18,12 +18,13 @@ const styles = StyleSheet.create({
   button: {
     height: 40,
     width: 120,
+    margin: 2,
     borderColor: '#222',
     borderWidth: 2,
-    borderRadius: 3,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#333',
+    backgroundColor: 'black',
   },
   buttonText: {
     color: '#aaa',

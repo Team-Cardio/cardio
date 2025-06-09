@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/src/types/navigation';
 
@@ -25,31 +25,42 @@ export default function HostScreen({ route }: Props) {
 
   return (
     <>
-      <View style={styles.headerContainer}>
-        <Text style={styles.text}>TABLE</Text>
-        <Text style={styles.text}>Room code: {roomCode}</Text>
-      </View>
-      <PlayerBar players={roomData?.players} curentPlayer={roomData.currentPlayer} />
-      <View style={styles.buttons}>
-        <GoHomeButton />
-      </View>
-      <View style={{ alignItems: "center" }}>
-        <Text style={styles.text}>POT: {roomData.potSize}</Text>
-      </View>
-      <View style={styles.main}>
-        <View style={styles.cardsContainer}>
-          <CardViewer card={cards[0]} back={Motive} readyToShow={cards.length > 0} shouldUseConstSize disable />
-          <CardViewer card={cards[1]} back={Motive} readyToShow={cards.length > 1} shouldUseConstSize disable />
-          <CardViewer card={cards[2]} back={Motive} readyToShow={cards.length > 2} shouldUseConstSize disable />
-          <CardViewer card={cards[3]} back={Motive} readyToShow={cards.length > 3} shouldUseConstSize disable />
-          <CardViewer card={cards[4]} back={Motive} readyToShow={cards.length > 4} shouldUseConstSize disable />
+      <ImageBackground
+        source={require('@/assets/images/photo.jpg')}
+        resizeMode="cover"
+        style={styles.background}
+      >
+        <View style={styles.headerContainer}>
+          <Text style={styles.text}>TABLE</Text>
+          <Text style={styles.text}>Room code: {roomCode}</Text>
         </View>
-      </View>
+        <PlayerBar players={roomData?.players} curentPlayer={roomData.currentPlayer} />
+        <View style={styles.buttons}>
+          <GoHomeButton />
+        </View>
+        <View style={{ alignItems: "center" }}>
+          <Text style={styles.text}>POT: {roomData.potSize}</Text>
+        </View>
+        <View style={styles.main}>
+          <View style={styles.cardsContainer}>
+            <CardViewer card={cards[0]} back={Motive} readyToShow={cards.length > 0} shouldUseConstSize disable />
+            <CardViewer card={cards[1]} back={Motive} readyToShow={cards.length > 1} shouldUseConstSize disable />
+            <CardViewer card={cards[2]} back={Motive} readyToShow={cards.length > 2} shouldUseConstSize disable />
+            <CardViewer card={cards[3]} back={Motive} readyToShow={cards.length > 3} shouldUseConstSize disable />
+            <CardViewer card={cards[4]} back={Motive} readyToShow={cards.length > 4} shouldUseConstSize disable />
+          </View>
+        </View>
+      </ImageBackground>
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
   container: {
     height: "80%",
   },

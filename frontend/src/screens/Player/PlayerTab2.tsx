@@ -60,10 +60,10 @@ const PlayerTab2 = ({ route }: Props) => {
   return (<>
     <GestureHandlerRootView style={styles.container}>
       <ImageBackground
-      source={require('@/assets/images/photo.jpg')}
-      resizeMode="cover"
-      style={styles.background}
-    >
+        source={require('@/assets/images/photo.jpg')}
+        resizeMode="cover"
+        style={styles.background}
+      >
       {/* <View style={styles.headerContainer}>
         <Text style={styles.text}>Player {roomData.playerID} </Text>
         <Text style={styles.text}>Room code: {roomCode}</Text>
