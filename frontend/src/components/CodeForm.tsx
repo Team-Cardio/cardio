@@ -14,10 +14,11 @@ export default function CodeForm({ title, navigate }: CodeFormProps) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>{title}</Text>
-            <Text style={styles.text}>Enter room code</Text>
+            <View style={styles.titleContainer}>
+                <Text style={styles.text}>{title}</Text>
+            </View>
             <View style={styles.inputContainer}>
-                <TextInput value={code} onChangeText={setCode} style={styles.input} autoCapitalize="none" placeholder="Enter code" />
+                <TextInput value={code} onChangeText={setCode} style={styles.input} autoCapitalize="none" placeholder="Enter room code" />
             </View>
 
             <Button title='confirm' onPress={() => navigate(code)} />
@@ -36,8 +37,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    titleContainer: {
+      padding: 10,
+      borderWidth: 0,
+      borderRadius: 10,
+      backgroundColor: 'rgba(0, 0, 0, 0.43)',
+    },
     text: {
         fontSize: 24,
+        color: "#fff",
     },
     inputContainer: {
         paddingHorizontal: 20,
@@ -47,14 +55,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     input: {
-        minWidth: 200,
-        borderWidth: 1,
-        borderColor: '#ccc',
+        minWidth: 120,
+        borderWidth: 2,
+        borderColor: '#000',
         borderRadius: 10,
         padding: 12,
         marginBottom: 16,
-        backgroundColor: 'white',
-        fontSize: 16,
+        backgroundColor: 'rgba(109, 109, 109, 0.72)',
+        fontSize: 18,
+        color: '#000',
     },
 
 });

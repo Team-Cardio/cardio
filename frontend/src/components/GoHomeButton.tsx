@@ -26,16 +26,15 @@ const styles = StyleSheet.create({
   button: {
     height: 50,
     width: 200,
-    borderColor: '#222',
-    borderWidth: 3,
-    borderRadius: 5,
+    borderWidth: 0,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'black',
   },
   buttonText: {
-    color: '#aaa',
-    fontSize: 18,
+    color: '#eee',
+    fontSize: 20,
     fontWeight: '500',
   },
 });

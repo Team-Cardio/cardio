@@ -49,15 +49,14 @@ const styles = StyleSheet.create({
         margin: 10,
     },
     highlight: {
-        backgroundColor: '#ffe066', // light yellow highlight
-        borderColor: '#ffcc00',
+        backgroundColor: '#ffe066',
+        borderColor: '#000',
         borderWidth: 2,
     },
     playerBox: {
         flex: 1,
         maxWidth: 80,
         height: 80,
-        backgroundColor: '#f0f0f0',
         marginHorizontal: 4,
         borderRadius: 8,
         padding: 5,
@@ -65,7 +64,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     text: {
-        color: "gray",
+        color: "white",
+        width: 120,
         margin: 5,
         fontSize: 20,
     },

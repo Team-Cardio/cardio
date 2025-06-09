@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, Button, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, Button, ActivityIndicator, Alert, ImageBackground } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import GoHomeButton from '../components/GoHomeButton';
@@ -41,6 +41,11 @@ export default function CreateRoomSettings({ navigation }: Props) {
 
     return (
         <View style={styles.container}>
+          <ImageBackground
+            source={require('@/assets/images/photo4.jpg')}
+            resizeMode="cover"
+            style={styles.background}
+          >
             <Text style={styles.text}>This is a place for Room Settings</Text>
 
             {loading ? (
@@ -50,19 +55,27 @@ export default function CreateRoomSettings({ navigation }: Props) {
             )}
 
             <GoHomeButton />
+          </ImageBackground>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    text: {
-        fontSize: 24,
-        marginBottom: 20,
-    },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  text: {
+    fontSize: 24,
+    margin: 20,
+    color: 'white',
+  },
 });
