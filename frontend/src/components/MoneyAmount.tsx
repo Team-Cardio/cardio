@@ -17,15 +17,15 @@ export default function AddChipButton({ moneyAmount, highLightStyles }: Props) {
 const styles = StyleSheet.create({
   button: {
     height: 40,
-    width: 120,
-    borderRadius: 15,
+    width: 160,
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#aaa',
+    backgroundColor: 'rgba(222,222,222,0.5)',
     borderColor: '#222',
     borderWidth: 2,
     margin: -10,
-    zIndex: 1,
   },
   buttonText: {
     color: '#000',

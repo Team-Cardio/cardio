@@ -6,7 +6,7 @@ interface ControllButtonProps {
   title: string;
 }
 
-export default function AddChipButton({ onPress, title }: ControllButtonProps) {
+export default function ControllButton({ onPress, title }: ControllButtonProps) {
   return (
     <TouchableOpacity style={styles.button} onPress={onPress}>
       <Text style={styles.buttonText}>{title}</Text>
@@ -16,18 +16,18 @@ export default function AddChipButton({ onPress, title }: ControllButtonProps) {
 
 const styles = StyleSheet.create({
   button: {
-    height: 30,
-    width: 100,
-    borderRadius: 10,
+    height: 40,
+    width: 120,
     borderColor: '#222',
     borderWidth: 2,
+    borderRadius: 3,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#555',
+    backgroundColor: '#333',
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 14,
+    color: '#aaa',
+    fontSize: 18,
     fontWeight: '500',
   },
 });
