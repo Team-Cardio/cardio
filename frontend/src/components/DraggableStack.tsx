@@ -9,7 +9,7 @@ import Animated, {
   runOnJS
 } from 'react-native-reanimated';
 
-const ITEM_COUNT = 6;
+const ITEM_COUNT = 8;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -21,7 +21,7 @@ type Props = {
 
 const DraggableStack = ({ image , amount, position}: Props) => {
   const positions = [...Array(ITEM_COUNT)].map((_,i) => ({
-    x: useSharedValue(position * 100 - 50),
+    x: useSharedValue(position * 100 - 60 + Math.random()*10),
     y: useSharedValue(SCREEN_HEIGHT/5 - i * 15),
   }));
 
