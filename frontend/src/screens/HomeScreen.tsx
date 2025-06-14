@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, Button, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Image, StyleSheet, useWindowDimensions } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import Background from '../components/Background';
