@@ -1,7 +1,7 @@
 import { Dimensions, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 
-const RankingsSource = require('@/assets/images/hand-rankings.png')
+const RankingsSource = require('@/assets/images/rankings.png')
 
 export default function ChipsViewer() {
 

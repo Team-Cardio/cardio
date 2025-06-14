@@ -27,10 +27,12 @@ function PlayerTabNavigator({ route }: Props) {
         const iconName = iconMap[route.name as keyof typeof iconMap];
         return <MaterialCommunityIcons name={iconName} size={35} color={color} />
       },
-      tabBarActiveTintColor: '#444',
+      tabBarActiveTintColor: '#aaa',
       tabBarInactiveTintColor: 'gray',
       tabBarStyle: {
         height: 70,
+        backgroundColor: 'black',
+        borderTopWidth: 0,
       },
       tabBarIconStyle: {
         alignItems: 'center',

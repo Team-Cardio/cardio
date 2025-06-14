@@ -16,18 +16,18 @@ export default function AddChipButton({ onPress, title }: ControllButtonProps) {
 
 const styles = StyleSheet.create({
   button: {
-    height: 30,
-    width: 100,
+    height: 40,
+    width: 120,
+    margin: 2,
+    borderWidth: 0,
     borderRadius: 10,
-    borderColor: '#222',
-    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#555',
+    backgroundColor: 'black',
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 14,
+    color: '#aaa',
+    fontSize: 18,
     fontWeight: '500',
   },
 });

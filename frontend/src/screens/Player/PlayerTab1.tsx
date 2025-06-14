@@ -2,12 +2,15 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 import RankingsViewer from '@/src/components/RankingsViewer';
+import Background from '@/src/components/Background';
 
 export default function PlayerTab1() {
     return (
-        <View style={styles.container}>
-            <RankingsViewer/>
-        </View>
+        <Background source={require('@/assets/images/photo2.jpg')}>
+            <View style={styles.container}>
+                <RankingsViewer/>
+            </View>
+        </Background>
     );
 }
 
