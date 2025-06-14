@@ -16,7 +16,7 @@ export function usePlayerConnection(code: string) {
   });
 
   useEffect(() => {
-    const ws = io("http://localhost:3000/ws/game", {
+    const ws = io("http://4.209.57.161:3000/ws/game", {
       transports: ["websocket"],
       path: "/socket.io",
     });

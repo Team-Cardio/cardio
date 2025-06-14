@@ -12,7 +12,7 @@ export default function CreateRoomSettings({ navigation }: Props) {
     const createRoom = useCallback(async () => {   
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:3000/room/create', {
+            const response = await fetch('http://4.209.57.161:3000/room/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
