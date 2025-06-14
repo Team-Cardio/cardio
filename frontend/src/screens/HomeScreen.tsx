@@ -1,7 +1,11 @@
 import React from 'react';
-import { View, Button, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Image, Button, StyleSheet, useWindowDimensions } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
+import Background from '../components/Background';
+import MainButton from '../components/MainButton';
+
+const LogoSource = require('@/assets/images/logo.png');
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -11,15 +15,18 @@ export default function HomeScreen({ navigation }: Props) {
 
     return (
         <View style={styles.container}>
+          <Background source={require("@/assets/images/photo2.jpg")}>
+            <Image source={LogoSource} style={styles.image} />
             <View style={[styles.buttonContainer, isNarrow ? {} : styles.desktopButtonContainer]}>
-                <Button title="Create a Room" onPress={() => navigation.navigate('CreateRoomSettings')} />
+                <MainButton title="Create a Room" onPress={() => navigation.navigate('CreateRoomSettings')} />
             </View>
             <View style={[styles.buttonContainer, isNarrow ? {} : styles.desktopButtonContainer]}>
-                <Button title="Rejoin as a Host" onPress={() => navigation.navigate('HostJoinCodeScreen')} />
+                <MainButton title="Rejoin as a Host" onPress={() => navigation.navigate('HostJoinCodeScreen')} />
             </View>
             <View style={[styles.buttonContainer, isNarrow ? {} : styles.desktopButtonContainer]}>
-                <Button title="Join as a Player" onPress={() => navigation.navigate('PlayerJoinCodeScreen')} />
+                <MainButton title="Join as a Player" onPress={() => navigation.navigate('PlayerJoinCodeScreen')} />
             </View>
+            </Background>
         </View>
     );
 }
@@ -29,7 +36,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
+    },
+    image: {
+      width: 200,
+      height: 200,
+      margin: 20,
     },
     buttonContainer: {
         width: '80%',
