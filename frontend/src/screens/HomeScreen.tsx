@@ -14,8 +14,8 @@ export default function HomeScreen({ navigation }: Props) {
     const isNarrow = width < 768;
 
     return (
-        <View style={styles.container}>
-          <Background source={require("@/assets/images/photo2.jpg")}>
+        <Background source={require("@/assets/images/photo2.jpg")}>
+          <View style={styles.container}>
             <Image source={LogoSource} style={styles.image} />
             <View style={[styles.buttonContainer, isNarrow ? {} : styles.desktopButtonContainer]}>
                 <MainButton title="Create a Room" onPress={() => navigation.navigate('CreateRoomSettings')} />
@@ -26,8 +26,8 @@ export default function HomeScreen({ navigation }: Props) {
             <View style={[styles.buttonContainer, isNarrow ? {} : styles.desktopButtonContainer]}>
                 <MainButton title="Join as a Player" onPress={() => navigation.navigate('PlayerJoinCodeScreen')} />
             </View>
-            </Background>
-        </View>
+          </View>
+        </Background>
     );
 }
 
