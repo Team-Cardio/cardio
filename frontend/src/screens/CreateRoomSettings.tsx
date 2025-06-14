@@ -9,7 +9,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'CreateRoomSettings'>;
 export default function CreateRoomSettings({ navigation }: Props) {
     const [loading, setLoading] = useState(false);
 
-    const createRoom = useCallback(async () => {   
+    const createRoom = useCallback(async () => {
         try {
             setLoading(true);
             const response = await fetch('http://localhost:3000/room/create', {
