@@ -6,11 +6,10 @@ import { RootStackParamList } from '@/src/types/navigation';
 import GoHomeButton from '@/src/components/GoHomeButton';
 import CardViewer from '@/src/components/CardViewer';
 import { Back } from '@/src/types/RoomData';
-import DraggableStack from '../components/DraggableStack';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useHostConnection } from '../hooks/useHostConnection';
 import PlayerBar from '../components/PlayerBar';
 import Background from '../components/Background';
+import ChipsStacks from '../components/ChipsStacks';
 
 const Motive: Back = 'tcsDark';
 
@@ -32,17 +31,17 @@ export default function HostScreen({ route }: Props) {
         </View>
         <PlayerBar players={roomData?.players} curentPlayer={roomData.currentPlayer} />
         <View style={styles.buttons}>
-          {/* <GoHomeButton/> */}
           {roomData.gameStarted || (
             <Pressable onPress={startGame} style={styles.startGame}>
               <Text>Start game</Text>
             </Pressable>
           )}
         </View>
-        <View style={{ alignItems: "center" }}>
+        <View style={styles.chips}>
           <Text style={styles.text}> POT: {roomData.potSize}</Text>
+          <ChipsStacks value={roomData.potSize}/>
         </View>
-        <View style={styles.main}>
+        <View style={styles.cards}>
           <View style={styles.cardsContainer}>
             <CardViewer card={cards[0]} back={Motive} readyToShow={cards.length > 0} shouldUseConstSize disable />
             <CardViewer card={cards[1]} back={Motive} readyToShow={cards.length > 1} shouldUseConstSize disable />
@@ -56,6 +55,9 @@ export default function HostScreen({ route }: Props) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   headerContainer: {
     height: 40,
     flexDirection: 'row',
@@ -79,7 +81,12 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
   },
-  main: {
+  chips: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  cards: {
+    flex: 1,
     flexDirection: 'row',
     height: "100%",
     alignItems: 'center',
