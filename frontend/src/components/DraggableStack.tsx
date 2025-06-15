@@ -10,7 +10,6 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const ITEM_COUNT = 8;
-const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 type Props = {

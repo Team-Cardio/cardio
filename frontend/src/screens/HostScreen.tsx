@@ -26,7 +26,7 @@ export default function HostScreen({ route }: Props) {
   return (
       <Background source={require('@/assets/images/photo.jpg')}>
         <View style={styles.headerContainer}>
-          <Text style={styles.text}>TABLE</Text>
+          <GoHomeButton title={"TABLE     Go home"}/>
           <Text style={styles.text}>Room code: {roomCode}</Text>
         </View>
         <PlayerBar players={roomData?.players} curentPlayer={roomData.currentPlayer} />

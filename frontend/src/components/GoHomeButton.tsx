@@ -24,8 +24,8 @@ export default function GoHomeButton({ title = "Go to Home Screen" }: GoHomeButt
 
 const styles = StyleSheet.create({
   button: {
-    height: 50,
-    width: 200,
+    height: 40,
+    width: 190,
     borderWidth: 0,
     borderRadius: 10,
     justifyContent: 'center',
