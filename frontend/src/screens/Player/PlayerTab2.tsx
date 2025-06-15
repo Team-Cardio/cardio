@@ -4,17 +4,13 @@ import { PlayerTabParamList } from "@/src/types/navigation";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import GoHomeButton from "@/src/components/GoHomeButton";
 import CardViewer from "@/src/components/CardViewer";
-import DraggableStack from "@/src/components/DraggableStack";
 import ControllButton from "@/src/components/ControllButton";
 import MoneyAmount from "@/src/components/MoneyAmount";
 import { usePlayerConnection } from "@/src/hooks/usePlayerConnection";
 import NumberInputModal from "@/src/components/AmountModal";
-
-const Chip1 = require("@/assets/images/chips/monte_carlo/chip_1.png");
-const Chip5 = require("@/assets/images/chips/monte_carlo/chip_5.png");
-const Chip25 = require("@/assets/images/chips/monte_carlo/chip_25.png");
+import Background from "@/src/components/Background";
+import ChipsStacks from "@/src/components/ChipsStacks";
 
 type Props = BottomTabScreenProps<PlayerTabParamList, "Tab2">;
 
@@ -46,39 +42,30 @@ const PlayerTab2 = ({ route }: Props) => {
   const shouldShowActionButtons = roomData.isMyTurn && roomData.isActive;
 
   return (<>
+    <Background source={require('@/assets/images/photo.jpg')}>
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.text}>Player {roomData.playerID} </Text>
         <Text style={styles.text}>Room code: {roomCode}</Text>
       </View>
-      <View style={styles.buttons}>
-        <GoHomeButton />
-      </View>
       <View>
         {shouldShowWaitText && <Text style={styles.text}> Wait for other players</Text>}
         {roomData.isAllIn && <Text style={styles.text}> YOU ARE ALL IN! </Text>}
       </View>
-      <View style={styles.chipsContainer}>
-        {!amountModalVisble && (
-          <>
-            < DraggableStack image={Chip1} />
-            <DraggableStack image={Chip5} />
-            <DraggableStack image={Chip25} />
-          </>
-        )}
-      </View>
+      <ChipsStacks value={roomData.chips}/>
+      <MoneyAmount moneyAmount={roomData.chips} />
       <View style={styles.controll}>
         {shouldShowActionButtons && <ControllButton title="Fold" onPress={doFold} />}
-        <MoneyAmount moneyAmount={roomData.chips} />
+        {shouldShowActionButtons && <ControllButton title="Call/Wait" onPress={doWait} />}
         {shouldShowActionButtons && <ControllButton title="Bet" onPress={() => setAmountModalVisible(true)} />}
       </View>
-      {shouldShowActionButtons && <ControllButton title="Call/Wait" onPress={doWait} />}
       <View style={styles.cardsContainer}>
         <CardViewer card={cards[0]} back="tcsDark" readyToShow={cards.length > 0} />
         <CardViewer card={cards[1]} back="tcsDark" readyToShow={cards.length > 0} />
       </View>
       <NumberInputModal isVisible={amountModalVisble} onClose={() => setAmountModalVisible(false)} onConfirm={doBet} />
     </GestureHandlerRootView>
+    </Background>
   </>
   );
 };
@@ -93,26 +80,20 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     height: 40,
-    flexDirection: "row",
+    flexDirection: 'row',
     width: "100%",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "white",
-    borderColor: "#ddd",
-    borderWidth: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderWidth: 0,
   },
   text: {
-    color: "gray",
+    color: '#aaa',
     margin: 5,
     fontSize: 20,
   },
   buttons: {
     flexDirection: "row",
-  },
-  chipsContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "flex-start",
   },
   controll: {
     height: 40,

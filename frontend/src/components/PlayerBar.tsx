@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { type Player } from '../types/RoomData';
 import MoneyAmount from "@/src/components/MoneyAmount";
 
@@ -27,16 +27,17 @@ const PlayerBar = ({ players = [], curentPlayer }: PlayerBarProps) => {
     return (
         <View style={styles.container}>
             {filledPlayers.map((player) => {
-                const isCurrentPlayer = curentPlayer === player.playerID
-                return (
-                    <View key={player.playerID} style={[styles.playerBox]}>
-                        <Text style={styles.text}>{player.name}</Text>
-                        <View style={{ padding: 10 }}>
-                            <MoneyAmount moneyAmount={player.chips} highLightStyles={isCurrentPlayer && styles.highlight} />
-                        </View>
-                        <Text style={styles.text}>Bets: {player.currentBet}</Text>
-                    </View>
-                )
+                const isCurrentPlayer = curentPlayer === player.playerID;
+                const isPlayer = player.name != 'Waiting...';
+                  return (
+                      <View key={player.playerID} style={[styles.playerBox]}>
+                          {isPlayer && <Text style={styles.text}>{player.name}</Text>}
+                          {isPlayer && <View style={{ padding: 10 }}>
+                              <MoneyAmount moneyAmount={player.chips} highLightStyles={isCurrentPlayer && styles.highlight} />
+                          </View>}
+                          {isPlayer && <Text style={styles.text}>Bets: {player.currentBet}</Text>}
+                      </View>
+                  )
             })}
         </View>
     );
@@ -47,11 +48,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         padding: 10,
-        paddingHorizontal: 20,
+        paddingHorizontal: 40,
         margin: 10,
     },
     highlight: {
-        backgroundColor: '#ffe066', // light yellow highlight
+        backgroundColor: '#ffe066',
         borderColor: '#ffcc00',
         borderWidth: 2,
     },
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
         flex: 1,
         maxWidth: 100,
         height: 80,
-        backgroundColor: '#f0f0f0',
+        
         marginHorizontal: 4,
         borderRadius: 8,
         padding: 5,
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     text: {
-        color: "gray",
+        color: "#aaa",
         margin: 5,
         fontSize: 20,
     },

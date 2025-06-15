@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, Button, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, Button, ActivityIndicator, Alert, BackHandler } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import GoHomeButton from '../components/GoHomeButton';
+import Background from '../components/Background';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CreateRoomSettings'>;
 
@@ -12,7 +13,7 @@ export default function CreateRoomSettings({ navigation }: Props) {
     const createRoom = useCallback(async () => {   
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:3000/room/create', {
+            const response = await fetch('http://4.209.57.161:3000/room/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -40,29 +41,31 @@ export default function CreateRoomSettings({ navigation }: Props) {
     }, [navigation]);
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.text}>This is a place for Room Settings</Text>
+        <Background source={require('@/assets/images/photo4.jpg')}>
+          <View style={styles.container}>
+              <Text style={styles.text}>This is a place for Room Settings</Text>
 
-            {loading ? (
-                <ActivityIndicator size="large" />
-            ) : (
-                <Button title="Create Room" onPress={createRoom} />
-            )}
+              {loading ? (
+                  <ActivityIndicator size="large" />
+              ) : (
+                  <Button title="Create Room" onPress={createRoom} />
+              )}
 
-            <GoHomeButton />
-        </View>
+              <GoHomeButton />
+          </View>
+        </Background>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    text: {
-        fontSize: 24,
-        marginBottom: 20,
-    },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  text: {
+    fontSize: 24,
+    margin: 20,
+    color: 'white',
+  },
 });

@@ -25,7 +25,7 @@ const NumberInputModal = ({
 
     const handleChange = (text: string) => {
         setNumber(text);
-        onValueChange?.(text); // Optional callback
+        onValueChange?.(text);
     };
 
     return (
@@ -71,16 +71,18 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgb(255, 255, 255)',
+        backgroundColor: 'rgba(0, 0, 0, 0)',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000,
     },
     modalContainer: {
         width: 300,
-        backgroundColor: '#fff',
+        backgroundColor: '#000',
         padding: 25,
         borderRadius: 10,
+        borderColor: '#222',
+        borderWidth: 6,
         alignItems: 'center',
         elevation: 5,
         shadowColor: '#000',
@@ -92,28 +94,31 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         marginBottom: 15,
+        color: 'gray',
     },
     input: {
         width: '100%',
         height: 40,
-        borderColor: '#ccc',
+        borderColor: '#ddd',
         borderWidth: 1,
         borderRadius: 5,
         paddingHorizontal: 10,
         marginBottom: 20,
+        color: '#ddd',
+        fontSize: 18,
     },
     button: {
         height: 30,
         width: 100,
         borderRadius: 10,
-        borderColor: '#222',
+        borderColor: '#333',
         borderWidth: 2,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#555',
+        backgroundColor: '#333',
     },
     buttonText: {
-        color: '#fff',
+        color: '#ddd',
         fontWeight: 'bold',
     },
 });

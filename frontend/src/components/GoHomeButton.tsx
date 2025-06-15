@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, View } from 'react-native';
+import {StyleSheet, TouchableOpacity, Text} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
@@ -8,23 +8,33 @@ type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 type GoHomeButton = { title?: string };
 
-function GoHomeButton({ title = "Go to Home Screen" }: GoHomeButton) {
+export default function GoHomeButton({ title = "Go to Home Screen" }: GoHomeButton) {
   const navigation = useNavigation<HomeNavigationProp>();
-
   return (
-    <View style={{ padding: 10 }}>
-      <Button
-        title={title}
-        onPress={() =>
+    <TouchableOpacity style={styles.button} onPress={() =>
           navigation.reset({
             index: 0,
             routes: [{ name: 'Home' }],
           })
-        }
-        color="#555"
-      />
-    </View>
+        }>
+      <Text style={styles.buttonText}>{title}</Text>
+    </TouchableOpacity>
   );
 }
 
-export default GoHomeButton;
+const styles = StyleSheet.create({
+  button: {
+    height: 40,
+    width: 190,
+    borderWidth: 0,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
+  },
+  buttonText: {
+    color: '#eee',
+    fontSize: 20,
+    fontWeight: '500',
+  },
+});
