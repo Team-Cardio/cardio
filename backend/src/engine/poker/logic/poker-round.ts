@@ -88,16 +88,20 @@ export class PokerRound {
   processAction(playerId: number, action: PokerGameAction, payload?: any) {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) {
+      console.error('Player not found');
       throw new Error('Player not found');
     }
     if (this.state.currentPlayerIndex !== playerId) {
+      console.error('Not your turn');
       throw new Error('Not your turn');
     }
     if (!player.isActive) {
       // covers all in and folded as well
+      console.error('Player cannot take action');
       throw new Error('Player cannot take action');
     }
     if (this.state.gameOver) {
+      console.error('Game is over');
       throw new Error('Game is over');
     }
     switch (action) {
@@ -117,6 +121,7 @@ export class PokerRound {
         this.handleAllIn(player);
         break;
       default:
+        console.error('Invalid action');
         throw new Error('Invalid action');
     }
 

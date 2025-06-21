@@ -8,6 +8,7 @@ export type PokerPlayer = gamePlayer & {
   isAllIn: boolean;
   isFolded: boolean;
   isActive: boolean;
+  ready: boolean;
 };
 
 export type InitialRoundState = {
@@ -45,7 +46,8 @@ export type PokerGameState = {
   roundHistory: PokerRoundState[];
   defaultBlindAmount: number;
   chipsInPlay: number;
-  gameStarted: boolean;
+  // gameStarted: boolean;
+  gameActive: boolean;
 };
 
 export type PokerGameAction = 'call' | 'raise' | 'fold' | 'check' | 'allIn';
