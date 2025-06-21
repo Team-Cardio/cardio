@@ -6,8 +6,6 @@ import { RootStackParamList } from '@/src/types/navigation';
 import GoHomeButton from '@/src/components/GoHomeButton';
 import CardViewer from '@/src/components/CardViewer';
 import { Back } from '@/src/types/RoomData';
-import DraggableStack from '../components/DraggableStack';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useHostConnection } from '../hooks/useHostConnection';
 import PlayerBar from '../components/PlayerBar';
 
@@ -36,7 +34,7 @@ export default function HostScreen({ route }: Props) {
       <View style={styles.buttons}>
         <GoHomeButton />
         {roomData.gameStarted || (
-          <Pressable onPress={startGame} style={{backgroundColor: 'red', alignSelf:'center'}}>
+          <Pressable onPress={startGame} style={{ backgroundColor: 'red', alignSelf: 'center' }}>
             <Text>Start game</Text>
           </Pressable>
         )}
