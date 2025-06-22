@@ -1,0 +1,51 @@
+name: Deploy to Azure VM
+
+on:
+  push:
+    branches:
+      - actions
+
+jobs:
+  deploy:
+    name: Deploy Backend and Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo (to load secrets)
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.AZURE_VM_HOST }} >> ~/.ssh/known_hosts
+
+      - name: SSH into Azure VM and deploy
+        run: |
+          ssh "${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}" "bash -s" << 'EOF'
+            set -e
+
+            # Hardcode the username from the SSH login — it's already available as $(whoami)
+            USERNAME=$(whoami)
+            PROJECT_DIR="/home/$USERNAME/cardio"
+
+            if [ -d "$PROJECT_DIR" ]; then
+              cd "$PROJECT_DIR"
+              git pull origin main
+            else
+              git clone https://github.com/Team-Cardio/cardio.git "$PROJECT_DIR"
+              cd "$PROJECT_DIR"
+            fi
+
+            # --- Backend: docker-compose ---
+            cd backend
+            docker-compose down
+            docker-compose up -d --build
+
+            # --- Frontend: pm2 restart ---
+            cd ../frontend
+            pm2 delete frontend || true
+            npm install
+            pm2 start npm --name frontend -- run start
+          EOF
