@@ -3,7 +3,7 @@ name: Deploy to Azure VM
 on:
   push:
     branches:
-      - actions
+      - vm-config
 
 jobs:
   deploy:
@@ -32,10 +32,11 @@ jobs:
 
             if [ -d "$PROJECT_DIR" ]; then
               cd "$PROJECT_DIR"
-              git pull origin main
+              git pull origin vm-config
             else
               git clone https://github.com/Team-Cardio/cardio.git "$PROJECT_DIR"
               cd "$PROJECT_DIR"
+              git checkout vm-config
             fi
 
             # --- Backend: docker-compose ---
