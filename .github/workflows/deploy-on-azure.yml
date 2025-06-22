@@ -38,7 +38,7 @@ jobs:
               cd "$PROJECT_DIR"
               git checkout vm-config
             fi
-            echo "Repository updated successfully."
+            echo "Repository pulled successfully."
 
             # --- Backend: docker-compose ---
             cd backend
