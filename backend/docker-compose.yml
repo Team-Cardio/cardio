@@ -11,6 +11,19 @@ services:
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWD}
       - REDIS_PORT=${REDIS_PORT}
+  nestjs:
+    container_name: nestjs
+    image: node:alpine
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    command: sh -c "npm start"
+    ports:
+      - '${API_PORT}:3000'
+    depends_on:
+      - 'redis'
+    env_file:
+      - .env
 
 volumes:
   database:
