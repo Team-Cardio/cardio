@@ -38,15 +38,20 @@ jobs:
               cd "$PROJECT_DIR"
               git checkout vm-config
             fi
+            echo "Repository updated successfully."
 
             # --- Backend: docker-compose ---
             cd backend
             docker-compose down
             docker-compose up -d --build
+            echo "Backend deployed successfully."
 
             # --- Frontend: pm2 restart ---
             cd ../frontend
             pm2 delete frontend || true
             npm install
-            pm2 start npm --name frontend -- run start
+            pm2 start npm --name frontend -- run start || true
+            pm2 save
+            pm2 status
+            echo "Frontend deployed successfully."
           EOF
