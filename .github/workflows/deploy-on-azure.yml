@@ -21,12 +21,13 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.AZURE_VM_HOST }} >> ~/.ssh/known_hosts
 
-      - name: SSH into Azure VM and deploy
+     - name: SSH into Azure VM and deploy
         run: |
-          ssh "${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}" << EOF
+          ssh "${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}" "bash -s" << 'EOF'
             set -e
 
-            USERNAME="${USERNAME}"
+            # Hardcode the username from the SSH login — it's already available as $(whoami)
+            USERNAME=$(whoami)
             PROJECT_DIR="/home/$USERNAME/cardio"
 
             if [ -d "$PROJECT_DIR" ]; then
@@ -48,5 +49,3 @@ jobs:
             npm install
             pm2 start npm --name frontend -- run start
           EOF
-        env:
-          USERNAME: ${{ secrets.AZURE_VM_USER }}
