@@ -43,7 +43,7 @@ export function usePlayerConnection(code: string) {
   useEffect(() => { loadPlayerId() }, []);
 
   useEffect(() => {
-    const ws = io("http://4.209.57.161:3000/ws/game", {
+    const ws = io(`${process.env.EXPO_PUBLIC_API_URL}/ws/game`, {
       transports: ["websocket"],
       path: "/socket.io",
     });
