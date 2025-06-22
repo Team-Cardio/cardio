@@ -58,7 +58,7 @@ export function usePlayerConnection(code: string) {
 
       if (playerId) {
         console.log(`join with playerId ${playerId}`)
-        ws.emit("join-room", { code, playerId });
+        ws.emit("join-room", { code, playerId: Number(playerId) });
       } else {
         console.log(`joined without playerId ${playerId}`)
         ws.emit("join-room", { code });
@@ -93,7 +93,7 @@ export function usePlayerConnection(code: string) {
       return;
     }
     console.log(action, playerId)
-    wsRef.current?.emit("action", { playerId, action });
+    wsRef.current?.emit("action", { playerId: Number(playerId), action });
   };
 
   const disconnect = () => {
