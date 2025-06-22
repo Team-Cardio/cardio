@@ -26,15 +26,14 @@ jobs:
           ssh "${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}" << EOF
             set -e
 
-            # Set project path based on user
-            PROJECT_DIR="/home/${{ secrets.AZURE_VM_USER }}/cardio"
+            USERNAME="${USERNAME}"
+            PROJECT_DIR="/home/$USERNAME/cardio"
 
-            # Clone or pull latest code
             if [ -d "$PROJECT_DIR" ]; then
               cd "$PROJECT_DIR"
               git pull origin main
             else
-              git clone https://github.com/your-org/your-repo.git "$PROJECT_DIR"
+              git clone https://github.com/Team-Cardio/cardio.git "$PROJECT_DIR"
               cd "$PROJECT_DIR"
             fi
 
@@ -49,3 +48,5 @@ jobs:
             npm install
             pm2 start npm --name frontend -- run start
           EOF
+        env:
+          USERNAME: ${{ secrets.AZURE_VM_USER }}
