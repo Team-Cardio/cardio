@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { PlayerAction, PlayerPayload, PlayerRoomData } from "../types/RoomData";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useToast } from "react-native-toast-notifications"
 
 export function usePlayerConnection(code: string) {
   const wsRef = useRef<Socket>();
@@ -16,6 +17,7 @@ export function usePlayerConnection(code: string) {
     currentBet: 0,
     cards: [],
   });
+  const toast = useToast();
 
   const savePlayerId = async (playerId: string) => {
     try {
@@ -65,7 +67,13 @@ export function usePlayerConnection(code: string) {
       console.log("[WebSocket] Disconnected");
     });
 
-    ws.on("error", (err: unknown) => {
+    ws.on("error", (err: { error: string }) => {
+      toast.show(err.error, {
+        type: "error",
+        placement: "top",
+        duration: 3000,
+        animationType: "slide-in",
+      });
       console.error("[WebSocket] Error:", err);
     });
 
