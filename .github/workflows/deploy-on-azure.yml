@@ -36,7 +36,7 @@ jobs:
             else
               git clone https://github.com/Team-Cardio/cardio.git "$PROJECT_DIR"
               cd "$PROJECT_DIR"
-              git checkout vm-config
+              git checkout vm-cpmonfig
             fi
             echo "Repository updated successfully."
 
@@ -50,8 +50,7 @@ jobs:
             cd ../frontend
             pm2 delete frontend
             npm install
-            pm2 start npm --name frontend -- run start || true
-            pm2 save
+            pm2 start npm --name frontend -- run start
             pm2 status
             echo "Frontend deployed successfully."
           EOF
