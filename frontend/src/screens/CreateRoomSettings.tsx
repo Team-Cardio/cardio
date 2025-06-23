@@ -4,11 +4,13 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import GoHomeButton from '../components/GoHomeButton';
 import Background from '../components/Background';
+import { useToast } from 'react-native-toast-notifications';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CreateRoomSettings'>;
 
 export default function CreateRoomSettings({ navigation }: Props) {
     const [loading, setLoading] = useState(false);
+    const toast = useToast();
 
     const createRoom = useCallback(async () => {
         try {
@@ -22,6 +24,12 @@ export default function CreateRoomSettings({ navigation }: Props) {
             });
 
             if (!response.ok) {
+                toast.show("Nie udało się utworzyć pokoju", {
+                    type: "error",
+                    placement: "top",
+                    duration: 3000,
+                    animationType: "slide-in",
+                });
                 throw new Error('Nie udało się utworzyć pokoju');
             }
 
@@ -42,30 +50,30 @@ export default function CreateRoomSettings({ navigation }: Props) {
 
     return (
         <Background source={require('@/assets/images/photo4.jpg')}>
-          <View style={styles.container}>
-              <Text style={styles.text}>This is a place for Room Settings</Text>
+            <View style={styles.container}>
+                <Text style={styles.text}>This is a place for Room Settings</Text>
 
-              {loading ? (
-                  <ActivityIndicator size="large" />
-              ) : (
-                  <Button title="Create Room" onPress={createRoom} />
-              )}
+                {loading ? (
+                    <ActivityIndicator size="large" />
+                ) : (
+                    <Button title="Create Room" onPress={createRoom} />
+                )}
 
-              <GoHomeButton />
-          </View>
+                <GoHomeButton />
+            </View>
         </Background>
     );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 24,
-    margin: 20,
-    color: 'white',
-  },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    text: {
+        fontSize: 24,
+        margin: 20,
+        color: 'white',
+    },
 });
