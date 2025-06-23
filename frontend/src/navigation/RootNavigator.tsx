@@ -31,7 +31,7 @@ const config = {
 }
 
 const linking: LinkingOptions<RootStackParamList> = {
-    prefixes: ['http://localhost:8081'],
+    prefixes: ['myapp://', 'https://myapp.com'],
     config
 };
 
