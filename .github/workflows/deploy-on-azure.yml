@@ -48,7 +48,7 @@ jobs:
 
             # --- Frontend: pm2 restart ---
             cd ../frontend
-            pm2 delete frontend
+            pm2 delete frontend || true # Delete if it exists, not failing when not
             npm install
             pm2 start npm --name frontend -- run start || true
             sleep 3 # Wait for the frontend to start
