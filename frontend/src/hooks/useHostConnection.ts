@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { HostPayload, HostRoomData, PlayerAction } from "../types/RoomData";
+import { useToast } from "react-native-toast-notifications";
 
 export function useHostConnection(code: string) {
     const wsRef = useRef<Socket>();
+    const toast = useToast();
     const [roomData, setRoomData] = useState<HostRoomData>({
         players: [],
         currentPlayer: "",
@@ -29,7 +31,13 @@ export function useHostConnection(code: string) {
             console.log("[WebSocket] Disconnected");
         });
 
-        ws.on("error", (err: unknown) => {
+        ws.on("error", (err: { error: string }) => {
+            toast.show(err.error, {
+                type: "error",
+                placement: "top",
+                duration: 3000,
+                animationType: "slide-in",
+            });
             console.error("[WebSocket] Error:", err);
         });
 
