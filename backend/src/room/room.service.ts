@@ -27,7 +27,7 @@ export class RoomService {
     return code;
   }
 
-  async join(code: string): Promise<any> {
+  async join(code: string, playerId?: number): Promise<any> {
     const roomKey = REDIS.getRoomKey(code);
     const playerCounterKey = REDIS.getPlayerCounterKey();
 
@@ -36,19 +36,36 @@ export class RoomService {
       return { success: false, errorMsg: `Room ${code} does not exist` };
     }
 
-    const playerId = await this.redis.incr(playerCounterKey);
-    await this.redis.sadd(roomKey, playerId); // :((
+    if (playerId === undefined) {
+      playerId = await this.redis.incr(playerCounterKey);
+      await this.redis.sadd(roomKey, playerId); // :((
 
-    const playerRoomKey = REDIS.getPlayerRoomKey(playerId);
-    await this.redis.set(playerRoomKey, code);
-
-    game.addPlayer({ id: playerId, name: `Player: ${playerId}` });
+      const playerRoomKey = REDIS.getPlayerRoomKey(playerId);
+      await this.redis.set(playerRoomKey, code);
+      
+      game.addPlayer({ id: playerId, name: `Player: ${playerId}` });
+    } else {
+      const playersReady = game.setPlayerReady(playerId);
+      if (playersReady === game.getPlayerCount()) {
+        game.resumeGame();
+      }
+    }
 
     return {
       success: true,
       playerId,
     };
-  } // const roomExists = await this.redis.sismember(roomKey, code);
+  }
+
+  async leave(playerId: number): Promise<any> {
+    const { success, game, roomCode } = await this.getPlayerGame(playerId);
+    if (!success) {
+      return { success };
+    }
+
+    game!.removePlayer(playerId);
+    return { success, roomCode };
+  }
 
   startGame(code: string) {
     const gameEngine = this.engineService.getGame(code);
