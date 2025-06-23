@@ -17,7 +17,8 @@ export class PokerGame {
       currentRound: null,
       lastWinners: null,
       chipsInPlay: 0,
-      gameStarted: false
+      // gameStarted: false,
+      gameActive: false,
     } as PokerGameState;
   }
 
@@ -30,13 +31,34 @@ export class PokerGame {
       isAllIn: false,
       isFolded: false,
       isActive: true,
+      ready: false,
     });
+  }
+
+  setPlayerReady(playerId: number): number | null {
+    const player = this.players.find((p) => p.id === playerId);
+    if (!player) return null;
+    player.ready = true;
+    return this.players.filter((p) => p.ready).length;
+  }
+
+  disconnectPlayer(playerId: number): number | null {
+    const player = this.players.find((p) => p.id === playerId);
+    if (!player) return null;
+    player.ready = false;
+    this.state.gameActive = false;
+    return this.players.filter((p) => p.ready).length;
+  }
+
+  removePlayer(playerId: number) {
+    this.players.splice(this.getPlayerIdx(playerId), 1);
   }
 
   startGame() {
     this.state.roundNumber = 1;
     this.state.roundHistory = [];
-    this.state.gameStarted = true;
+    // this.state.gameStarted = true;
+    this.state.gameActive = true;
     this.currentRound = new PokerRound({
       players: this.players,
       bigBlindAmount: this.state.defaultBlindAmount,
@@ -45,7 +67,16 @@ export class PokerGame {
       leftoverPot: 0,
     });
 
+    // TODO: needed if game was manually started without all players ready
+    this.players.forEach((p) => {
+      p.ready = true;
+    });
+
     this.newRound();
+  }
+
+  resumeGame() {
+    this.state.gameActive = true;
   }
 
   newRound() {
@@ -94,6 +125,9 @@ export class PokerGame {
   processAction(playerId: number, action: string, payload?: any): void {
     if (this.state.gameOver) {
       throw new Error('Game is over');
+    }
+    if (!this.state.gameActive) {
+      throw new Error('Game is not active');
     }
     if (!this.currentRound) {
       throw new Error('No current round to process action');

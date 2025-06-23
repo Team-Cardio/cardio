@@ -14,18 +14,25 @@ export class RoomGateway {
   @WebSocketServer() server: Server;
 
   socketMap: Map<number, Socket>;
-  rejoinMap: Map<Socket, number>;
+  playerMap: Map<Socket, number>;
 
   constructor(private readonly roomService: RoomService) {
     this.socketMap = new Map();
-    this.rejoinMap = new Map();
+    this.playerMap = new Map();
   }
 
   handleConnection(client: Socket) {
     console.log('[Gateway] Client connected:', client.id);
   }
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     console.log('[Gateway] Client disconnected:', client.id);
+    const playerId = this.playerMap.get(client);
+    if (!playerId) return;
+    const {success, game, roomCode} = await this.roomService.getPlayerGame(playerId);
+    if (!success) return;
+
+    game.disconnectPlayer(playerId);
+    this.sendRoomUpdate(roomCode);
   }
 
   @SubscribeMessage('spectate')
@@ -41,29 +48,22 @@ export class RoomGateway {
 
   @SubscribeMessage('join-room')
   async handleJoinRoom(
-    @MessageBody() data: { code: string; playerId: number | undefined },
+    @MessageBody() data: { code: string; playerId?: number },
     @ConnectedSocket() client: Socket,
   ) {
-    let playerId: number;
+    const {
+      playerId,
+      success,
+      errorMsg,
+    } = await this.roomService.join(data.code, data.playerId);
 
-    if (data.playerId == undefined) {
-      const {
-        playerId: _playerId,
-        success,
-        errorMsg,
-      } = await this.roomService.join(data.code);
+    this.socketMap.set(playerId, client);
+    this.playerMap.set(client, playerId);
 
-      if (!success) {
-        client.emit('error', { error: errorMsg });
-        console.error('error while joining');
-        return;
-      }
-
-      playerId = _playerId;
-      this.socketMap.set(playerId, client);
-      this.rejoinMap.set(client, playerId);
-    } else {
-      playerId = data.playerId;
+    if (!success) {
+      client.emit('error', { error: errorMsg });
+      console.error('error while joining');
+      return;
     }
 
     client.emit('joined', { payload: { playerID: playerId } });
@@ -75,19 +75,36 @@ export class RoomGateway {
     @MessageBody() data: { playerId: number },
     @ConnectedSocket() client: Socket,
   ) {
-    const { success, roomCode } = await this.roomService.getPlayerGame(
-      data.playerId,
-    );
+    const { success, roomCode } = await this.roomService.leave(data.playerId);
     if (!success) {
       console.error("Player's room not found");
       return;
     }
 
     this.socketMap.delete(data.playerId);
-    this.rejoinMap.delete(client);
+    this.playerMap.delete(client);
 
     client.emit('left', { roomCode });
     this.sendRoomUpdate(roomCode);
+  }
+
+  @SubscribeMessage('ready')
+  async handleReady(
+    @MessageBody() data: { code: string; playerId: number },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { success, game } = this.roomService.getGame(data.code);
+    if (!success) {
+      const errorMsg = 'Room not found';
+      console.error(errorMsg);
+      client.emit(errorMsg);
+      return;
+    }
+
+    const playersReady = game.setPlayerReady(data.playerId);
+    if (playersReady === game.getPlayerCount()) {
+      game.startGame();
+    }
   }
 
   @SubscribeMessage('start-game')
@@ -171,7 +188,7 @@ export class RoomGateway {
           suit: card.color,
           rank: getCardRankName(card.rank),
         })),
-        gameStarted: gameState.gameStarted
+        gameStarted: gameState.gameActive,
       },
       players: playerData,
     };

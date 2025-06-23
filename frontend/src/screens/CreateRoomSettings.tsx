@@ -10,10 +10,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'CreateRoomSettings'>;
 export default function CreateRoomSettings({ navigation }: Props) {
     const [loading, setLoading] = useState(false);
 
-    const createRoom = useCallback(async () => {   
+    const createRoom = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://4.209.57.161:3000/room/create', {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/room/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
