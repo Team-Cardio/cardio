@@ -6,13 +6,14 @@ import MoneyAmount from "@/src/components/MoneyAmount";
 type PlayerBarProps = {
     players?: Player[];
     curentPlayer?: string;
+    winners?: string[];
 };
 
-const PlayerBar = ({ players = [], curentPlayer }: PlayerBarProps) => {
+const PlayerBar = ({ players = [], curentPlayer, winners = [] }: PlayerBarProps) => {
     const maxPlayers = 5;
     const filledPlayers = [...players];
-    
-    for (let i = 0; i < maxPlayers-players.length; ++i) {
+
+    for (let i = 0; i < maxPlayers - players.length; ++i) {
         filledPlayers.push({
             playerID: `empty_${i}`,
             name: `Waiting...`,
@@ -23,21 +24,23 @@ const PlayerBar = ({ players = [], curentPlayer }: PlayerBarProps) => {
             isFolded: false,
         });
     }
-
     return (
         <View style={styles.container}>
             {filledPlayers.map((player) => {
                 const isCurrentPlayer = curentPlayer === player.playerID;
                 const isPlayer = player.name != 'Waiting...';
-                  return (
-                      <View key={player.playerID} style={[styles.playerBox]}>
-                          {isPlayer && <Text style={styles.text}>{player.name}</Text>}
-                          {isPlayer && <View style={{ padding: 10 }}>
-                              <MoneyAmount moneyAmount={player.chips} highLightStyles={isCurrentPlayer && styles.highlight} />
-                          </View>}
-                          {isPlayer && <Text style={styles.text}>Bets: {player.currentBet}</Text>}
-                      </View>
-                  )
+                console.log(player.playerID);
+                const isWinner = winners.includes(String(player.playerID))
+                return (
+                    <View key={player.playerID} style={[styles.playerBox]}>
+                        {isPlayer && <Text style={styles.text}>{player.name}</Text>}
+                        {isPlayer && <View style={{ padding: 10 }}>
+                            <MoneyAmount moneyAmount={player.chips} highLightStyles={isCurrentPlayer && styles.highlight} />
+                        </View>}
+                        {isPlayer && !isWinner && <Text style={styles.text}>Bets: {player.currentBet}</Text>}
+                        {isWinner && <Text style={styles.textWinner}> WINNER </Text>}
+                    </View>
+                )
             })}
         </View>
     );
@@ -60,7 +63,7 @@ const styles = StyleSheet.create({
         flex: 1,
         maxWidth: 100,
         height: 80,
-        
+
         marginHorizontal: 4,
         borderRadius: 8,
         padding: 5,
@@ -69,6 +72,11 @@ const styles = StyleSheet.create({
     },
     text: {
         color: "#aaa",
+        margin: 5,
+        fontSize: 20,
+    },
+    textWinner: {
+        color: "red",
         margin: 5,
         fontSize: 20,
     },

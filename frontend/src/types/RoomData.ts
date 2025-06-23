@@ -29,7 +29,8 @@ type Player = {
     currentBet: number,
     isAllIn: boolean,
     isFolded: boolean,
-    isActive: boolean, //redundancja ale moze bedzie wygodniej
+    isActive: boolean,
+    cards?: Card[]
 }
 
 type HostRoomData = {
@@ -38,6 +39,9 @@ type HostRoomData = {
     potSize: number,
     cards: Card[],
     gameStarted: boolean
+    roundFinished: boolean
+    winners?: string[], //playerIDs
+    prize?: number
 }
 
 type PlayerPayload = {

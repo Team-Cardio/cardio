@@ -17,40 +17,46 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Host'>;
 
 export default function HostScreen({ route }: Props) {
   const roomCode = route.params.code;
-  const { startGame, roomData } = useHostConnection(roomCode);
+  const { nextRound, startGame, roomData } = useHostConnection(roomCode);
   const cards = roomData?.cards ?? [];
 
   console.log(cards)
   console.log(roomData.players)
 
   return (
-      <Background source={require('@/assets/images/photo.jpg')}>
-        <View style={styles.headerContainer}>
-          <GoHomeButton title={"TABLE     Go home"}/>
-          <Text style={styles.text}>Room code: {roomCode}</Text>
+    <Background source={require('@/assets/images/photo.jpg')}>
+      <View style={styles.headerContainer}>
+        <GoHomeButton title={"TABLE     Go home"} />
+        <Text style={styles.text}>Room code: {roomCode}</Text>
+      </View>
+      <PlayerBar players={roomData?.players} curentPlayer={roomData.currentPlayer} winners={roomData.winners} />
+      <View style={styles.buttons}>
+        {roomData.gameStarted || (
+          <Pressable onPress={startGame} style={styles.startGame}>
+            <Text>Start game</Text>
+          </Pressable>
+        )}
+        {roomData.roundFinished &&
+          <Pressable onPress={nextRound} style={styles.startGame}>
+            <Text>Next Round</Text>
+          </Pressable>
+        }
+      </View>
+      <View style={styles.chips}>
+        {roomData.roundFinished ? <Text style={styles.text}> Prize: {roomData.prize}</Text>
+          : <Text style={styles.text}> POT: {roomData.potSize}</Text>}
+        <ChipsStacks value={roomData.potSize} />
+      </View>
+      <View style={styles.cards}>
+        <View style={styles.cardsContainer}>
+          <CardViewer card={cards[0]} back={Motive} readyToShow={cards.length > 0} shouldUseConstSize disable />
+          <CardViewer card={cards[1]} back={Motive} readyToShow={cards.length > 1} shouldUseConstSize disable />
+          <CardViewer card={cards[2]} back={Motive} readyToShow={cards.length > 2} shouldUseConstSize disable />
+          <CardViewer card={cards[3]} back={Motive} readyToShow={cards.length > 3} shouldUseConstSize disable />
+          <CardViewer card={cards[4]} back={Motive} readyToShow={cards.length > 4} shouldUseConstSize disable />
         </View>
-        <PlayerBar players={roomData?.players} curentPlayer={roomData.currentPlayer} />
-        <View style={styles.buttons}>
-          {roomData.gameStarted || (
-            <Pressable onPress={startGame} style={styles.startGame}>
-              <Text>Start game</Text>
-            </Pressable>
-          )}
-        </View>
-        <View style={styles.chips}>
-          <Text style={styles.text}> POT: {roomData.potSize}</Text>
-          <ChipsStacks value={roomData.potSize}/>
-        </View>
-        <View style={styles.cards}>
-          <View style={styles.cardsContainer}>
-            <CardViewer card={cards[0]} back={Motive} readyToShow={cards.length > 0} shouldUseConstSize disable />
-            <CardViewer card={cards[1]} back={Motive} readyToShow={cards.length > 1} shouldUseConstSize disable />
-            <CardViewer card={cards[2]} back={Motive} readyToShow={cards.length > 2} shouldUseConstSize disable />
-            <CardViewer card={cards[3]} back={Motive} readyToShow={cards.length > 3} shouldUseConstSize disable />
-            <CardViewer card={cards[4]} back={Motive} readyToShow={cards.length > 4} shouldUseConstSize disable />
-          </View>
-        </View>
-      </Background>
+      </View>
+    </Background>
   );
 }
 
@@ -77,7 +83,7 @@ const styles = StyleSheet.create({
   },
   startGame: {
     backgroundColor: 'red',
-    alignSelf:'center',
+    alignSelf: 'center',
     padding: 5,
     borderRadius: 5,
   },
