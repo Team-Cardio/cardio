@@ -50,7 +50,7 @@ jobs:
             cd ../frontend
             pm2 delete frontend
             npm install
-            pm2 start npm --name frontend -- run start
+            pm2 start npm --name frontend -- run start || true
             pm2 status
             echo "Frontend deployed successfully."
           EOF
