@@ -52,6 +52,5 @@ jobs:
             npm install
             pm2 start npm --name frontend -- run start || true
             sleep 3 # Wait for the frontend to start
-            pm2 status
             echo "Frontend deployed successfully."
           EOF
