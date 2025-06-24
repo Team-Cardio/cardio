@@ -30,7 +30,7 @@ const PlayerTab2 = ({ route }: Props) => {
     emitPlayerAction({ type: "raise", amount });
   }, [emitPlayerAction]);
   const doWait = useCallback(() => {
-    console.log("Wait");
+    console.log("Wait" + roomData.currentTableBet + " " + roomData.currentBet);
     if (roomData.currentTableBet - roomData.currentBet > 0) {
       emitPlayerAction({ type: 'call' });
     } else {
