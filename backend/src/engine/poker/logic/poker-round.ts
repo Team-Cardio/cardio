@@ -183,21 +183,20 @@ export class PokerRound {
       this.handleAllIn(player);
       return;
     }
-    if (amount <= this.state.minimumBet) {
-      throw new Error('Raise amount must be greater than the minimum bet');
+    const fullBetAmount = player.bet + amount;
+    if (fullBetAmount - this.state.currentBet < this.state.minimumBet) {
+      throw new Error('Raise amount must be not smaller the minimum bet');
     }
-    const fullBetAmount = this.state.currentBet + amount;
-    const chipsToCall = fullBetAmount - player.bet;
-    if (player.chips < chipsToCall) {
+    if (player.chips < amount) {
       throw new Error('Not enough chips');
     }
+    player.chips -= amount;
+    player.bet += amount;
 
-    player.chips -= chipsToCall;
-    player.bet += chipsToCall;
-    player.isActive = false;
-
-    this.state.pot += chipsToCall;
+    this.state.pot += amount;
     this.state.currentBet = fullBetAmount;
+
+    player.isActive = false;
     this.state.numberOfActivePlayers -= 1;
 
     this.updateActivePlayers();
@@ -230,11 +229,11 @@ export class PokerRound {
     }
 
     player.bet += player.chips;
+    this.state.pot += player.chips;
     player.isAllIn = true;
     player.isActive = false;
     player.chips = 0;
 
-    this.state.pot += player.chips;
     this.state.currentBet = Math.max(player.bet, this.state.currentBet);
     this.state.numberOfActivePlayers -= 1;
   }

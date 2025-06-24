@@ -101,10 +101,13 @@ export class RoomService {
     if (!success) {
       return { success: false, errorMsg: 'Failed to find the game' };
     }
+    console.log(
+      `Player ${playerId} wants to play ${action.type} with ${action.amount}`,
+    );
 
     try {
       game.processAction(playerId, action.type, action);
-    } catch (e){
+    } catch (e) {
       return { success: false, errorMsg: `Failed to process the action: ${e}` };
     }
 
