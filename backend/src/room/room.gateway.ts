@@ -171,7 +171,7 @@ export class RoomGateway {
       playerID: p.id,
       name: p.name,
       chips: p.chips,
-      currentBet: p.bet,
+      currentBet: roundState.currentBet,
       isAllIn: p.isAllIn,
       isFolded: !p.isActive && !p.isAllIn,
       isActive: p.isActive,

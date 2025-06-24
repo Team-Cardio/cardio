@@ -36,6 +36,10 @@ export class RoomService {
       return { success: false, errorMsg: `Room ${code} does not exist` };
     }
 
+    if (game.getState().game.gameActive) {
+      return { success: false, errorMsg: `Game is already started` };
+    }
+
     if (playerId === undefined) {
       playerId = await this.redis.incr(playerCounterKey);
       await this.redis.sadd(roomKey, playerId); // :((
