@@ -133,7 +133,7 @@ export class PokerRound {
       return this.getState();
     }
 
-    while (this.state.numberOfActivePlayers === 0) {
+    while (this.state.numberOfActivePlayers <= 1) {
       if (this.state.roundPhase === PokerRoundStateEnum.PreFlop) {
         this.state.roundPhase = PokerRoundStateEnum.Flop;
         this.dealFlop();

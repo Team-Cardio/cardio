@@ -23,8 +23,7 @@ export default function HostScreen({ route }: Props) {
   const { nextRound, startGame, roomData } = useHostConnection(roomCode);
   const cards = roomData?.cards ?? [];
 
-  console.log(cards);
-  console.log(roomData.players);
+  const playersActive = roomData.players.filter((p) => p.chips >= 10).length;
 
   return (
     <Background source={require("@/assets/images/photo.jpg")}>
@@ -46,7 +45,7 @@ export default function HostScreen({ route }: Props) {
         {roomData.gameStarted || (
           <MainButton title="Start Game" onPress={startGame} />
         )}
-        {roomData.roundFinished && (
+        {roomData.roundFinished && playersActive > 1 && (
           <MainButton title="Next Round" onPress={nextRound} />
         )}
       </View>
