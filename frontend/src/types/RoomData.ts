@@ -40,8 +40,7 @@ type HostRoomData = {
     cards: Card[],
     gameStarted: boolean
     roundFinished: boolean
-    winners?: string[], //playerIDs
-    prize?: number
+    winners?: {id:string, amount?:number}[], //playerIDs
 }
 
 type PlayerPayload = {

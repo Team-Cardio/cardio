@@ -37,20 +37,23 @@ export default function HostScreen({ route }: Props) {
         curentPlayer={roomData.currentPlayer}
         winners={roomData.winners}
       />
-      <View style={{ alignSelf: "center", marginBottom: 10 }}>
-        <QRCode size={400} value={`myapp://app/player/${roomCode}`} />
-      </View>
+      {roomData.gameStarted || (
+        <View style={{ alignSelf: "center", marginBottom: 10 }}>
+          <QRCode size={400} value={`myapp://app/player/${roomCode}`} />
+        </View>
+      )}
       <View style={styles.buttons}>
         {roomData.gameStarted || (
           <MainButton title="Start Game" onPress={startGame} />
         )}
-        {roomData.roundFinished &&
+        {roomData.roundFinished && (
           <MainButton title="Next Round" onPress={nextRound} />
-        }
+        )}
       </View>
       <View style={styles.chips}>
-        {roomData.roundFinished ? <Text style={styles.text}> Prize: {roomData.prize}</Text>
-          : <Text style={styles.text}> POT: {roomData.potSize}</Text>}
+        {roomData.roundFinished || (
+          <Text style={styles.text}> POT: {roomData.potSize}</Text>
+        )}
         <ChipsStacks value={roomData.potSize} />
       </View>
       <View style={styles.cards}>
@@ -118,8 +121,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   startGame: {
-    backgroundColor: 'red',
-    alignSelf: 'center',
+    backgroundColor: "red",
+    alignSelf: "center",
     padding: 5,
     borderRadius: 5,
   },

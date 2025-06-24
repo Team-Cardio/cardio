@@ -6,7 +6,7 @@ import MoneyAmount from "@/src/components/MoneyAmount";
 type PlayerBarProps = {
     players?: Player[];
     curentPlayer?: string;
-    winners?: string[];
+    winners?: {id: string, amount?: number}[];
 };
 
 const PlayerBar = ({ players = [], curentPlayer, winners = [] }: PlayerBarProps) => {
@@ -29,13 +29,12 @@ const PlayerBar = ({ players = [], curentPlayer, winners = [] }: PlayerBarProps)
             {filledPlayers.map((player) => {
                 const isCurrentPlayer = curentPlayer === player.playerID;
                 const isPlayer = player.name != 'Waiting...';
-                console.log(player.playerID);
-                const isWinner = winners.includes(String(player.playerID))
+                const isWinner = winners.find(w => w.id === String(player.playerID));
                 return (
                     <View key={player.playerID} style={[styles.playerBox]}>
                         {isPlayer && <Text style={styles.text}>{player.name}</Text>}
                         {isPlayer && <View style={{ padding: 10 }}>
-                            <MoneyAmount moneyAmount={player.chips} highLightStyles={isCurrentPlayer && styles.highlight} />
+                            <MoneyAmount moneyAmount={player.chips} highLightStyles={isCurrentPlayer && styles.highlight} wonAmount={isWinner?.amount} />
                         </View>}
                         {isPlayer && !isWinner && <Text style={styles.text}>Bets: {player.currentBet}</Text>}
                         {isWinner && <Text style={styles.textWinner}> WINNER </Text>}
@@ -66,7 +65,6 @@ const styles = StyleSheet.create({
 
         marginHorizontal: 4,
         borderRadius: 8,
-        padding: 5,
         alignItems: 'center',
         justifyContent: 'center',
     },
