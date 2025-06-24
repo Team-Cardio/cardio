@@ -152,7 +152,7 @@ export class PokerRound {
 
       this.state.numberOfActivePlayers = this.state.numberOfPlayersToPlay;
       for (const player of this.state.players) {
-        player.isActive = !player.isFolded;
+        player.isActive = !player.isFolded && !player.isAllIn;
       }
     }
 
@@ -179,6 +179,10 @@ export class PokerRound {
   }
 
   handleRaise(player: PokerPlayer, amount: number) {
+    if (amount == player.chips) {
+      this.handleAllIn(player);
+      return;
+    }
     if (amount <= this.state.minimumBet) {
       throw new Error('Raise amount must be greater than the minimum bet');
     }
@@ -338,9 +342,13 @@ export class PokerRound {
       player.isActive = true;
     }
     this.state.numberOfActivePlayers = activePlayers.length;
+    //for debugging purposes
+    console.log(
+      `Active players: ${this.state.numberOfActivePlayers}, Players to play: ${this.state.numberOfPlayersToPlay}`,
+    );
   }
 
   getCurrentPlayerIndex() {
-    return this.players[this.state.currentPlayerIndex].id
+    return this.players[this.state.currentPlayerIndex].id;
   }
 }
