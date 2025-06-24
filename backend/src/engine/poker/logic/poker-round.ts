@@ -185,7 +185,10 @@ export class PokerRound {
     }
     const fullBetAmount = player.bet + amount;
     if (fullBetAmount - this.state.currentBet < this.state.minimumBet) {
-      throw new Error('Raise amount must be not smaller the minimum bet');
+      throw new Error(
+        'Raise amount must be not smaller the minimum bet: ' +
+          this.state.minimumBet,
+      );
     }
     if (player.chips < amount) {
       throw new Error('Not enough chips');
@@ -307,6 +310,7 @@ export class PokerRound {
   }
 
   updateChips() {
+    console.log('Updating chips for winners:', this.state.winners);
     if (this.state.winners) {
       const allInPlayers = this.state.winners.filter(
         (player) => player.isAllIn,
@@ -314,17 +318,20 @@ export class PokerRound {
       if (allInPlayers.length > 0) {
         const allInPot = this.state.pot / allInPlayers.length;
         allInPlayers.forEach((player) => {
-          const chipsWon = player.bet > allInPot ? allInPot : player.bet;
+          const chipsWon =
+            player.bet * this.state.players.length > allInPot
+              ? allInPot
+              : player.bet * this.state.players.length;
           player.chips += chipsWon;
           player.amount = chipsWon;
           this.state.pot -= chipsWon;
         });
       }
-      const remainingPot = this.state.pot / this.state.winners.length;
-      this.state.winners.forEach((winner) => {
-        if (winner.isAllIn) {
-          return;
-        }
+      const remainingWinners = this.state.winners.filter(
+        (player) => !player.isAllIn,
+      );
+      const remainingPot = this.state.pot / remainingWinners.length;
+      remainingWinners.forEach((winner) => {
         winner.chips += remainingPot;
         winner.amount = remainingPot;
         this.state.pot -= remainingPot;
