@@ -171,7 +171,7 @@ export class RoomGateway {
       playerID: p.id,
       name: p.name,
       chips: p.chips,
-      currentBet: roundState.currentBet,
+      currentBet: roundState?.currentBet ?? 0,
       isAllIn: p.isAllIn,
       isFolded: !p.isActive && !p.isAllIn,
       isActive: p.isActive,
@@ -182,7 +182,7 @@ export class RoomGateway {
       playerData.push({
         ...playersPublic[playerIdx],
 
-        isMyTurn: roundState?.currentPlayerIndex == playerIdx,
+        isMyTurn: gameState.currentPlayer == playerIdx,
         cards: gameState.players[playerIdx].hand.map((card) => ({
           suit: card.color,
           rank: getCardRankName(card.rank),
@@ -199,7 +199,7 @@ export class RoomGateway {
     return {
       host: {
         players: playersPublic,
-        currentPlayer: roundState?.currentPlayerIndex,
+        currentPlayer: gameState.currentPlayer,
         potSize: roundState?.pot,
         cards: roundState?.communityCards.map((card) => ({
           suit: card.color,

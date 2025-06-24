@@ -80,14 +80,13 @@ export class PokerGame {
   }
 
   newRound() {
-    // filter out players who can't pay the blinds
-    // this.state.players = this.state.players.filter(
-    //   (player) => player.chips < this.state.defaultBlindAmount,
-    // );
     this.state.gameOver = false;
     this.state.chipsInPlay = this.players.reduce(
       (acc, player) => acc + player.chips,
       0,
+    );
+    const roundPlayers = this.players.filter(
+      (p) => p.chips >= this.state.defaultBlindAmount,
     );
     this.players.forEach((player) => {
       player.isFolded = false;
@@ -102,14 +101,14 @@ export class PokerGame {
         this.state.roundHistory[this.state.roundHistory.length - 1].winners;
       this.state.roundNumber++;
       this.currentRound = new PokerRound({
-        players: this.players,
+        players: roundPlayers,
         bigBlindAmount: this.state.defaultBlindAmount,
         roundNumber: this.state.roundNumber,
         dealerIndex:
           (this.state.roundHistory[this.state.roundHistory.length - 1]
             .dealerIndex +
             1) %
-          this.players.length,
+          roundPlayers.length,
         leftoverPot: this.state.chipsInPlay,
       });
     } else {
@@ -128,11 +127,6 @@ export class PokerGame {
     }
     if (!this.currentRound) {
       throw new Error('No current round to process action');
-    }
-    if (this.currentRound.getState().currentPlayerIndex !== playerId) {
-      throw new Error(
-        `It's not your turn ${this.currentRound.getState().currentPlayerIndex} ${playerId}`,
-      );
     }
     
     const state = this.currentRound.processAction(
@@ -153,7 +147,7 @@ export class PokerGame {
 
   getState() {
     return {
-      game: { ...this.state, players: this.players },
+      game: { ...this.state, players: this.players, currentPlayer: this.currentRound?.getCurrentPlayerIndex() },
       round: this.currentRound?.getState(),
     };
   }

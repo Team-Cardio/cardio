@@ -91,7 +91,7 @@ export class PokerRound {
       console.error('Player not found');
       throw new Error('Player not found');
     }
-    if (this.state.currentPlayerIndex !== playerId) {
+    if (this.players[this.state.currentPlayerIndex].id !== playerId) {
       console.error('Not your turn');
       throw new Error('Not your turn');
     }
@@ -338,5 +338,9 @@ export class PokerRound {
       player.isActive = true;
     }
     this.state.numberOfActivePlayers = activePlayers.length;
+  }
+
+  getCurrentPlayerIndex() {
+    return this.players[this.state.currentPlayerIndex].id
   }
 }
