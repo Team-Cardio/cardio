@@ -133,7 +133,7 @@ export class PokerRound {
       return this.getState();
     }
 
-    if (this.state.numberOfActivePlayers === 0) {
+    while (this.state.numberOfActivePlayers === 0) {
       if (this.state.roundPhase === PokerRoundStateEnum.PreFlop) {
         this.state.roundPhase = PokerRoundStateEnum.Flop;
         this.dealFlop();
@@ -243,6 +243,7 @@ export class PokerRound {
 
     this.state.currentBet = Math.max(player.bet, this.state.currentBet);
     this.state.numberOfActivePlayers -= 1;
+    this.updateActivePlayers();
   }
 
   nextPlayer() {
