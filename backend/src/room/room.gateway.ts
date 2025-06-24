@@ -171,7 +171,7 @@ export class RoomGateway {
       playerID: p.id,
       name: p.name,
       chips: p.chips,
-      currentBet: roundState?.currentBet ?? 0,
+      currentBet: p.bet ? p.bet : 0,
       isAllIn: p.isAllIn,
       isFolded: !p.isActive && !p.isAllIn,
       isActive: p.isActive,
@@ -193,7 +193,11 @@ export class RoomGateway {
     const roundFinished = roundState?.gameOver;
     const roundFinishedData = roundFinished && {
       roundFinished,
-      winners: roundState.winners?.map((p) => ({id: String(p.id), amount: p.amount})) ?? [],
+      winners:
+        roundState.winners?.map((p) => ({
+          id: String(p.id),
+          amount: p.amount,
+        })) ?? [],
     };
 
     return {
