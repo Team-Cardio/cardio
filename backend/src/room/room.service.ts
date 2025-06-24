@@ -42,7 +42,7 @@ export class RoomService {
 
       const playerRoomKey = REDIS.getPlayerRoomKey(playerId);
       await this.redis.set(playerRoomKey, code);
-      
+
       game.addPlayer({ id: playerId, name: `Player: ${playerId}` });
     } else {
       const playersReady = game.setPlayerReady(playerId);
@@ -83,6 +83,15 @@ export class RoomService {
     return { success: true };
   }
 
+  nextRound(code: string) {
+    const gameEngine = this.engineService.getGame(code);
+    if (!gameEngine) {
+      return { success: false, errorMsg: 'Game not found' };
+    }
+    gameEngine.newRound();
+    return { success: true };
+  }
+
   async performAction(playerId: number, action: any) {
     const { success, game, roomCode } = await this.getPlayerGame(playerId);
     if (!success) {
@@ -91,8 +100,8 @@ export class RoomService {
 
     try {
       game.processAction(playerId, action.type, action);
-    } catch {
-      return { success: false, errorMsg: 'Failed to process the action' };
+    } catch (e){
+      return { success: false, errorMsg: `Failed to process the action: ${e}` };
     }
 
     console.log(

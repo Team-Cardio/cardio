@@ -84,6 +84,7 @@ export class PokerGame {
     // this.state.players = this.state.players.filter(
     //   (player) => player.chips < this.state.defaultBlindAmount,
     // );
+    this.state.gameOver = false;
     this.state.chipsInPlay = this.players.reduce(
       (acc, player) => acc + player.chips,
       0,
@@ -116,10 +117,6 @@ export class PokerGame {
     }
 
     this.currentRound.startRound();
-  }
-
-  endGame() {
-    this.state.gameOver = true;
   }
 
   processAction(playerId: number, action: string, payload?: any): void {

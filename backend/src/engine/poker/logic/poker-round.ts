@@ -305,25 +305,27 @@ export class PokerRound {
 
   updateChips() {
     if (this.state.winners) {
-      const allInPlayers = this.state.players.filter(
-        (player) => player.isAllIn && !player.isFolded,
+      const allInPlayers = this.state.winners.filter(
+        (player) => player.isAllIn,
       );
       if (allInPlayers.length > 0) {
         const allInPot = this.state.pot / allInPlayers.length;
         allInPlayers.forEach((player) => {
           const chipsWon = player.bet > allInPot ? allInPot : player.bet;
           player.chips += chipsWon;
+          player.amount = chipsWon;
           this.state.pot -= chipsWon;
         });
-        const remainingPot = this.state.pot / this.state.winners.length;
-        this.state.winners.forEach((winner) => {
-          if (allInPlayers.includes(winner)) {
-            return;
-          }
-          winner.chips += remainingPot;
-          this.state.pot -= remainingPot;
-        });
       }
+      const remainingPot = this.state.pot / this.state.winners.length;
+      this.state.winners.forEach((winner) => {
+        if (winner.isAllIn) {
+          return;
+        }
+        winner.chips += remainingPot;
+        winner.amount = remainingPot;
+        this.state.pot -= remainingPot;
+      });
     }
   }
 
