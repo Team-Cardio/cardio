@@ -299,8 +299,13 @@ export class PokerRound {
       this.state.winners = null;
       return;
     }
-    const sortedPlayers = remainingPlayers.sort((a, b) =>
-      PokerHandCompare.compareHands(a.hand, this.state.communityCards, b.hand),
+    const sortedPlayers = remainingPlayers.sort(
+      (a, b) =>
+        -PokerHandCompare.compareHands(
+          a.hand,
+          this.state.communityCards,
+          b.hand,
+        ),
     );
 
     const winners = sortedPlayers.filter(
