@@ -91,7 +91,7 @@ export class PokerRound {
       console.error('Player not found');
       throw new Error('Player not found');
     }
-    if (this.state.currentPlayerIndex !== playerId) {
+    if (this.players[this.state.currentPlayerIndex].id !== playerId) {
       console.error('Not your turn');
       throw new Error('Not your turn');
     }
@@ -133,7 +133,7 @@ export class PokerRound {
       return this.getState();
     }
 
-    if (this.state.numberOfActivePlayers === 0) {
+    while (this.state.numberOfActivePlayers <= 1) {
       if (this.state.roundPhase === PokerRoundStateEnum.PreFlop) {
         this.state.roundPhase = PokerRoundStateEnum.Flop;
         this.dealFlop();
@@ -152,7 +152,7 @@ export class PokerRound {
 
       this.state.numberOfActivePlayers = this.state.numberOfPlayersToPlay;
       for (const player of this.state.players) {
-        player.isActive = !player.isFolded;
+        player.isActive = !player.isFolded && !player.isAllIn;
       }
     }
 
@@ -179,21 +179,31 @@ export class PokerRound {
   }
 
   handleRaise(player: PokerPlayer, amount: number) {
-    if (amount <= this.state.minimumBet) {
-      throw new Error('Raise amount must be greater than the minimum bet');
+    if (amount == player.chips) {
+      this.handleAllIn(player);
+      return;
     }
-    const fullBetAmount = this.state.currentBet + amount;
-    const chipsToCall = fullBetAmount - player.bet;
-    if (player.chips < chipsToCall) {
+    if (amount + player.bet == this.state.currentBet) {
+      this.handleCall(player);
+      return;
+    }
+    const fullBetAmount = player.bet + amount;
+    if (fullBetAmount - this.state.currentBet < this.state.minimumBet) {
+      throw new Error(
+        'Raise amount must be not smaller the minimum bet: ' +
+          this.state.minimumBet,
+      );
+    }
+    if (player.chips < amount) {
       throw new Error('Not enough chips');
     }
+    player.chips -= amount;
+    player.bet += amount;
 
-    player.chips -= chipsToCall;
-    player.bet += chipsToCall;
-    player.isActive = false;
-
-    this.state.pot += chipsToCall;
+    this.state.pot += amount;
     this.state.currentBet = fullBetAmount;
+
+    player.isActive = false;
     this.state.numberOfActivePlayers -= 1;
 
     this.updateActivePlayers();
@@ -226,13 +236,14 @@ export class PokerRound {
     }
 
     player.bet += player.chips;
+    this.state.pot += player.chips;
     player.isAllIn = true;
     player.isActive = false;
     player.chips = 0;
 
-    this.state.pot += player.chips;
     this.state.currentBet = Math.max(player.bet, this.state.currentBet);
     this.state.numberOfActivePlayers -= 1;
+    this.updateActivePlayers();
   }
 
   nextPlayer() {
@@ -288,8 +299,13 @@ export class PokerRound {
       this.state.winners = null;
       return;
     }
-    const sortedPlayers = remainingPlayers.sort((a, b) =>
-      PokerHandCompare.compareHands(a.hand, this.state.communityCards, b.hand),
+    const sortedPlayers = remainingPlayers.sort(
+      (a, b) =>
+        -PokerHandCompare.compareHands(
+          a.hand,
+          this.state.communityCards,
+          b.hand,
+        ),
     );
 
     const winners = sortedPlayers.filter(
@@ -304,26 +320,32 @@ export class PokerRound {
   }
 
   updateChips() {
+    console.log('Updating chips for winners:', this.state.winners);
     if (this.state.winners) {
-      const allInPlayers = this.state.players.filter(
-        (player) => player.isAllIn && !player.isFolded,
+      const allInPlayers = this.state.winners.filter(
+        (player) => player.isAllIn,
       );
       if (allInPlayers.length > 0) {
         const allInPot = this.state.pot / allInPlayers.length;
         allInPlayers.forEach((player) => {
-          const chipsWon = player.bet > allInPot ? allInPot : player.bet;
+          const chipsWon =
+            player.bet * this.state.players.length > allInPot
+              ? allInPot
+              : player.bet * this.state.players.length;
           player.chips += chipsWon;
+          player.amount = chipsWon;
           this.state.pot -= chipsWon;
         });
-        const remainingPot = this.state.pot / this.state.winners.length;
-        this.state.winners.forEach((winner) => {
-          if (allInPlayers.includes(winner)) {
-            return;
-          }
-          winner.chips += remainingPot;
-          this.state.pot -= remainingPot;
-        });
       }
+      const remainingWinners = this.state.winners.filter(
+        (player) => !player.isAllIn,
+      );
+      const remainingPot = this.state.pot / remainingWinners.length;
+      remainingWinners.forEach((winner) => {
+        winner.chips += remainingPot;
+        winner.amount = remainingPot;
+        this.state.pot -= remainingPot;
+      });
     }
   }
 
@@ -336,5 +358,13 @@ export class PokerRound {
       player.isActive = true;
     }
     this.state.numberOfActivePlayers = activePlayers.length;
+    //for debugging purposes
+    console.log(
+      `Active players: ${this.state.numberOfActivePlayers}, Players to play: ${this.state.numberOfPlayersToPlay}`,
+    );
+  }
+
+  getCurrentPlayerIndex() {
+    return this.players[this.state.currentPlayerIndex].id;
   }
 }

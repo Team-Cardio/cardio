@@ -20,11 +20,10 @@ type Props = NativeStackScreenProps<RootStackParamList, "Host">;
 
 export default function HostScreen({ route }: Props) {
   const roomCode = route.params.code;
-  const { startGame, roomData } = useHostConnection(roomCode);
+  const { nextRound, startGame, roomData } = useHostConnection(roomCode);
   const cards = roomData?.cards ?? [];
 
-  console.log(cards);
-  console.log(roomData.players);
+  const playersActive = roomData.players.filter((p) => p.chips >= 10).length;
 
   return (
     <Background source={require("@/assets/images/photo.jpg")}>
@@ -35,17 +34,25 @@ export default function HostScreen({ route }: Props) {
       <PlayerBar
         players={roomData?.players}
         curentPlayer={roomData.currentPlayer}
+        winners={roomData.winners}
       />
-      <View style={{ alignSelf: "center", marginBottom: 10 }}>
-        <QRCode size={400} value={`myapp://app/player/${roomCode}`} />
-      </View>
+      {roomData.gameStarted || (
+        <View style={{ alignSelf: "center", marginBottom: 10 }}>
+          <QRCode size={400} value={`myapp://app/player/${roomCode}`} />
+        </View>
+      )}
       <View style={styles.buttons}>
         {roomData.gameStarted || (
           <MainButton title="Start Game" onPress={startGame} />
         )}
+        {roomData.roundFinished && playersActive > 1 && (
+          <MainButton title="Next Round" onPress={nextRound} />
+        )}
       </View>
       <View style={styles.chips}>
-        <Text style={styles.text}> POT: {roomData.potSize}</Text>
+        {roomData.roundFinished || (
+          <Text style={styles.text}> POT: {roomData.potSize}</Text>
+        )}
         <ChipsStacks value={roomData.potSize} />
       </View>
       <View style={styles.cards}>
