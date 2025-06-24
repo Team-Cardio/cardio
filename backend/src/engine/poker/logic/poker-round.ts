@@ -183,6 +183,10 @@ export class PokerRound {
       this.handleAllIn(player);
       return;
     }
+    if (amount + player.bet == this.state.currentBet) {
+      this.handleCall(player);
+      return;
+    }
     const fullBetAmount = player.bet + amount;
     if (fullBetAmount - this.state.currentBet < this.state.minimumBet) {
       throw new Error(
