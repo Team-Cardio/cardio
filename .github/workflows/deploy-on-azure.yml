@@ -3,7 +3,7 @@ name: Deploy to Azure VM
 on:
   push:
     branches:
-      - vm-config
+      - prod
 
 jobs:
   deploy:
@@ -32,12 +32,15 @@ jobs:
 
             if [ -d "$PROJECT_DIR" ]; then
               cd "$PROJECT_DIR"
-              git pull origin vm-config
+              git pull origin main
             else
               git clone https://github.com/Team-Cardio/cardio.git "$PROJECT_DIR"
               cd "$PROJECT_DIR"
-              git checkout vm-cpmonfig
             fi
+
+            git fetch origin prod
+            git cherry-pick b9a8ac642830f5434b629b9999db220aa4221d84
+
             echo "Repository updated successfully."
 
             # --- Backend: docker-compose ---
@@ -50,7 +53,7 @@ jobs:
             cd ../frontend
             pm2 delete frontend || true # Delete if it exists, not failing when not
             npm install
-            pm2 start npm --name frontend -- run start || true
+            pm2 start npx --name frontend -- expo start || true
             sleep 3 # Wait for the frontend to start
             echo "Frontend deployed successfully."
           EOF
