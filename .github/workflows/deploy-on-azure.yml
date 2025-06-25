@@ -48,9 +48,9 @@ jobs:
 
             # --- Frontend: pm2 restart ---
             cd ../frontend
-            pm2 delete frontend || true
+            # pm2 delete frontend || true
             npm install
-            pm2 start npm --name frontend -- run start || true
+            # pm2 start npm --name frontend -- run start || true
             sleep 3
             echo "Frontend deployed successfully I hope."
           EOF
