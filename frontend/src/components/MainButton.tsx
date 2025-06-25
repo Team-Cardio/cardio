@@ -22,11 +22,11 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'black',
+    backgroundColor: 'red',
   },
   buttonText: {
     color: '#eee',
-    fontSize: 20,
+    fontSize: 50,
     fontWeight: '500',
   },
 });
