@@ -52,6 +52,6 @@ jobs:
             npm install
             pm2 start npm --name frontend -- run start || true
             sleep 3
-            echo "Frontend deployed successfully."
+            echo "Frontend deployed successfully I hope."
           EOF
 
