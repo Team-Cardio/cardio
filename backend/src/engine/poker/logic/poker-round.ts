@@ -133,7 +133,8 @@ export class PokerRound {
       return this.getState();
     }
 
-    while (this.state.numberOfActivePlayers <= 1) {
+    while (this.state.numberOfActivePlayers <= 0) {
+      console.log("here", this.state.numberOfActivePlayers)
       if (this.state.roundPhase === PokerRoundStateEnum.PreFlop) {
         this.state.roundPhase = PokerRoundStateEnum.Flop;
         this.dealFlop();
@@ -153,6 +154,9 @@ export class PokerRound {
       this.state.numberOfActivePlayers = this.state.numberOfPlayersToPlay;
       for (const player of this.state.players) {
         player.isActive = !player.isFolded && !player.isAllIn;
+        if (!player.isActive) {
+          this.state.numberOfActivePlayers--;
+        }
       }
     }
 
@@ -191,7 +195,7 @@ export class PokerRound {
     if (fullBetAmount - this.state.currentBet < this.state.minimumBet) {
       throw new Error(
         'Raise amount must be not smaller the minimum bet: ' +
-          this.state.minimumBet,
+        this.state.minimumBet,
       );
     }
     if (player.chips < amount) {
