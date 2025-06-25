@@ -1,33 +1,57 @@
-- name: SSH into Azure VM and deploy
-  run: |
-    ssh "${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}" "bash -s" << 'EOF'
-      set -e
+name: Deploy to Azure VM
 
-      USERNAME=$(whoami)
-      PROJECT_DIR="/home/$USERNAME/cardio"
+on:
+  push:
+    branches:
+      - prod
 
-      if [ -d "$PROJECT_DIR" ]; then
-        cd "$PROJECT_DIR"
-        git fetch origin
-        git reset --hard origin/prod
-      else
-        git clone --branch prod https://github.com/Team-Cardio/cardio.git "$PROJECT_DIR"
-        cd "$PROJECT_DIR"
-      fi
+jobs:
+  deploy:
+    name: Deploy Backend and Frontend
+    runs-on: ubuntu-latest
 
-      echo "Repository updated and reset to origin/prod."
+    steps:
+      - name: Checkout repo (to load secrets)
+        uses: actions/checkout@v4
 
-      # --- Backend: docker-compose ---
-      cd backend
-      docker-compose down
-      docker-compose up -d --build
-      echo "Backend deployed successfully."
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.AZURE_VM_HOST }} >> ~/.ssh/known_hosts
 
-      # --- Frontend: pm2 restart ---
-      cd ../frontend
-      pm2 delete frontend || true
-      npm install
-      pm2 start npx --name frontend -- expo start || true
-      sleep 3
-      echo "Frontend deployed successfully."
-    EOF
+      - name: SSH into Azure VM and deploy
+        run: |
+          ssh "${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}" "bash -s" << 'EOF'
+            set -e
+
+            USERNAME=$(whoami)
+            PROJECT_DIR="/home/$USERNAME/cardio"
+
+            if [ -d "$PROJECT_DIR" ]; then
+              cd "$PROJECT_DIR"
+              git fetch origin
+              git reset --hard origin/prod
+            else
+              git clone --branch prod https://github.com/Team-Cardio/cardio.git "$PROJECT_DIR"
+              cd "$PROJECT_DIR"
+            fi
+
+            echo "Repository updated and reset to origin/prod."
+
+            # --- Backend: docker-compose ---
+            cd backend
+            docker-compose down
+            docker-compose up -d --build
+            echo "Backend deployed successfully."
+
+            # --- Frontend: pm2 restart ---
+            cd ../frontend
+            pm2 delete frontend || true
+            npm install
+            pm2 start npx --name frontend -- expo start || true
+            sleep 3
+            echo "Frontend deployed successfully."
+          EOF
+
