@@ -37,8 +37,15 @@ export default function HostScreen({ route }: Props) {
         winners={roomData.winners}
       />
       {roomData.gameStarted || (
-        <View style={{ alignSelf: "center", marginBottom: 10 }}>
+        <View style={{ alignSelf: "center", marginBottom: 10, flexDirection: 'row', gap:50     }}>
+          <View>
+          <Text style={{fontSize:50, color:"white", textAlign:'center'}}>Android</Text>
           <QRCode size={400} value={`myapp://app/player/${roomCode}`} />
+          </View>
+          <View>
+          <Text style={{fontSize:50, color:"white", textAlign:'center'}}>Web</Text>
+          <QRCode size={400} value={`http://20.54.80.229:8081/app/player/${roomCode}`} />
+          </View>
         </View>
       )}
       <View style={styles.buttons}>
