@@ -28,7 +28,8 @@ export class RoomGateway {
     console.log('[Gateway] Client disconnected:', client.id);
     const playerId = this.playerMap.get(client);
     if (!playerId) return;
-    const {success, game, roomCode} = await this.roomService.getPlayerGame(playerId);
+    const { success, game, roomCode } =
+      await this.roomService.getPlayerGame(playerId);
     if (!success) return;
 
     game.disconnectPlayer(playerId);
@@ -51,17 +52,16 @@ export class RoomGateway {
     @MessageBody() data: { code: string; playerId?: number },
     @ConnectedSocket() client: Socket,
   ) {
-    const {
-      playerId,
-      success,
-      errorMsg,
-    } = await this.roomService.join(data.code, data.playerId);
+    const { playerId, success, errorMsg } = await this.roomService.join(
+      data.code,
+      data.playerId,
+    );
 
     this.socketMap.set(playerId, client);
     this.playerMap.set(client, playerId);
 
     if (!success) {
-      client.emit('error', { error: errorMsg });
+      emitError(client, errorMsg);
       console.error('error while joining');
       return;
     }
@@ -114,8 +114,21 @@ export class RoomGateway {
   ) {
     const { success, errorMsg } = this.roomService.startGame(data.code);
     if (!success) {
-      console.error(errorMsg);
-      client.emit('error', { error: errorMsg });
+      emitError(client, errorMsg);
+      return;
+    }
+
+    this.sendRoomUpdate(data.code);
+  }
+
+  @SubscribeMessage('next-round')
+  async handleNextRound(
+    @MessageBody() data: { code: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { success, errorMsg } = this.roomService.nextRound(data.code);
+    if (!success) {
+      emitError(client, errorMsg);
       return;
     }
 
@@ -130,8 +143,7 @@ export class RoomGateway {
     const { success, errorMsg, roomCode } =
       await this.roomService.performAction(data.playerId, data.action);
     if (!success) {
-      console.error(errorMsg);
-      client.emit('error', { error: errorMsg });
+      emitError(client, errorMsg);
       return;
     }
 
@@ -160,7 +172,8 @@ export class RoomGateway {
       playerID: p.id,
       name: p.name,
       chips: p.chips,
-      currentBet: p.bet,
+      currentBet: p.bet ? p.bet : 0,
+      currentTableBet: roundState?.currentBet ?? 0,
       isAllIn: p.isAllIn,
       isFolded: !p.isActive && !p.isAllIn,
       isActive: p.isActive,
@@ -171,7 +184,7 @@ export class RoomGateway {
       playerData.push({
         ...playersPublic[playerIdx],
 
-        isMyTurn: roundState?.currentPlayerIndex == playerIdx,
+        isMyTurn: gameState.currentPlayer == playerIdx,
         cards: gameState.players[playerIdx].hand.map((card) => ({
           suit: card.color,
           rank: getCardRankName(card.rank),
@@ -179,18 +192,34 @@ export class RoomGateway {
       });
     }
 
+    const roundFinished = roundState?.gameOver;
+    const roundFinishedData = roundFinished && {
+      roundFinished,
+      winners:
+        roundState.winners?.map((p) => ({
+          id: String(p.id),
+          amount: p.amount,
+        })) ?? [],
+    };
+
     return {
       host: {
         players: playersPublic,
-        currentPlayer: roundState?.currentPlayerIndex,
-        potSize: gameState.chipsInPlay,
+        currentPlayer: gameState.currentPlayer,
+        potSize: roundState?.pot,
         cards: roundState?.communityCards.map((card) => ({
           suit: card.color,
           rank: getCardRankName(card.rank),
         })),
         gameStarted: gameState.gameActive,
+        ...roundFinishedData,
       },
       players: playerData,
     };
   }
+}
+
+function emitError(client: Socket, error?: string) {
+  client.emit('error', { error });
+  console.error(error);
 }

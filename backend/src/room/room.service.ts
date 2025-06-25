@@ -36,13 +36,17 @@ export class RoomService {
       return { success: false, errorMsg: `Room ${code} does not exist` };
     }
 
+    if (game.getState().game.gameActive) {
+      return { success: false, errorMsg: `Game is already started` };
+    }
+
     if (playerId === undefined) {
       playerId = await this.redis.incr(playerCounterKey);
       await this.redis.sadd(roomKey, playerId); // :((
 
       const playerRoomKey = REDIS.getPlayerRoomKey(playerId);
       await this.redis.set(playerRoomKey, code);
-      
+
       game.addPlayer({ id: playerId, name: `Player: ${playerId}` });
     } else {
       const playersReady = game.setPlayerReady(playerId);
@@ -83,16 +87,28 @@ export class RoomService {
     return { success: true };
   }
 
+  nextRound(code: string) {
+    const gameEngine = this.engineService.getGame(code);
+    if (!gameEngine) {
+      return { success: false, errorMsg: 'Game not found' };
+    }
+    gameEngine.newRound();
+    return { success: true };
+  }
+
   async performAction(playerId: number, action: any) {
     const { success, game, roomCode } = await this.getPlayerGame(playerId);
     if (!success) {
       return { success: false, errorMsg: 'Failed to find the game' };
     }
+    console.log(
+      `Player ${playerId} wants to play ${action.type} with ${action.amount}`,
+    );
 
     try {
       game.processAction(playerId, action.type, action);
-    } catch {
-      return { success: false, errorMsg: 'Failed to process the action' };
+    } catch (e) {
+      return { success: false, errorMsg: `Failed to process the action: ${e}` };
     }
 
     console.log(

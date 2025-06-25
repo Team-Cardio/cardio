@@ -2,6 +2,7 @@ import React from 'react';
 import { Platform, View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
+import { ToastProvider } from 'react-native-toast-notifications';
 
 export default function App() {
   const Container = Platform.OS === 'web' ? View : SafeAreaView;
@@ -11,7 +12,9 @@ export default function App() {
       style={styles.container}
       {...(Platform.OS !== 'web' ? { edges: ['top'] } : {})}
     >
-      <RootNavigator />
+      <ToastProvider>
+        <RootNavigator />
+      </ToastProvider>
     </Container>
   );
 }

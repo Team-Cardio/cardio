@@ -28,7 +28,7 @@ export type PokerRoundState = {
   currentPlayerIndex: number;
   currentRound: number;
   gameOver: boolean;
-  winners: PokerPlayer[] | null;
+  winners: (PokerPlayer & { amount?: number })[] | null;
   deck: Card[];
   numberOfPlayersToPlay: number;
   numberOfActivePlayers: number;

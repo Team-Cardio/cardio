@@ -143,34 +143,29 @@ export class PokerHandEval {
   }
 
   private static isStraight(cards: CardEval[]): [boolean, CardEval?] {
-    const ranks = cards.map((card) => card.rank).sort((a, b) => a - b);
-    const consecutiveCount = ranks.reduce(
-      (acc, rank, index) => {
-        if (index === 0) return { count: 1, maxCount: 1 };
+    // Get unique ranks
+    const uniqueRanks = Array.from(
+      new Set(cards.map((card) => card.rank)),
+    ).sort((a, b) => a - b);
 
-        if (rank === ranks[index - 1] + 1) {
-          const newCount = acc.count + 1;
-          return {
-            count: newCount,
-            maxCount: Math.max(acc.maxCount, newCount),
-            rank: acc.maxCount >= 5 ? ranks[index] : acc.rank,
-          };
+    let consecutiveCount = 1;
+    let straightHighRank = uniqueRanks[0];
+
+    for (let i = 1; i < uniqueRanks.length; i++) {
+      if (uniqueRanks[i] === uniqueRanks[i - 1] + 1) {
+        consecutiveCount++;
+        straightHighRank = uniqueRanks[i];
+
+        if (consecutiveCount >= 5) {
+          const highCard = cards.find((card) => card.rank === straightHighRank);
+          return [true, highCard];
         }
-        return {
-          count: 1,
-          maxCount: Math.max(acc.maxCount, acc.count),
-          rank: acc.rank,
-        };
-      },
-      { count: 0, maxCount: 0, rank: RankEval.ACE },
-    );
+      } else {
+        consecutiveCount = 1;
+      }
+    }
 
-    const isStraight = consecutiveCount.maxCount >= 5;
-    const highCard = isStraight
-      ? cards.find((card) => card.rank === consecutiveCount.rank)
-      : undefined;
-
-    return [isStraight, highCard];
+    return [false, undefined];
   }
 
   private static isFlush(cards: CardEval[]): [boolean, Color?] {

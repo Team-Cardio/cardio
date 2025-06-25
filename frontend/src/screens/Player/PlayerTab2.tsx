@@ -30,8 +30,8 @@ const PlayerTab2 = ({ route }: Props) => {
     emitPlayerAction({ type: "raise", amount });
   }, [emitPlayerAction]);
   const doWait = useCallback(() => {
-    console.log("Wait");
-    if (roomData.currentBet > 0) {
+    console.log("Wait" + roomData.currentTableBet + " " + roomData.currentBet);
+    if (roomData.currentTableBet - roomData.currentBet > 0) {
       emitPlayerAction({ type: 'call' });
     } else {
       emitPlayerAction({ type: 'check' });
@@ -43,28 +43,31 @@ const PlayerTab2 = ({ route }: Props) => {
 
   return (<>
     <Background source={require('@/assets/images/photo.jpg')}>
-    <GestureHandlerRootView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.text}>Player {roomData.playerID} </Text>
-        <Text style={styles.text}>Room code: {roomCode}</Text>
-      </View>
-      <View>
-        {shouldShowWaitText && <Text style={styles.text}> Wait for other players</Text>}
-        {roomData.isAllIn && <Text style={styles.text}> YOU ARE ALL IN! </Text>}
-      </View>
-      <ChipsStacks value={roomData.chips}/>
-      <MoneyAmount moneyAmount={roomData.chips} />
-      <View style={styles.controll}>
-        {shouldShowActionButtons && <ControllButton title="Fold" onPress={doFold} />}
-        {shouldShowActionButtons && <ControllButton title="Call/Wait" onPress={doWait} />}
-        {shouldShowActionButtons && <ControllButton title="Bet" onPress={() => setAmountModalVisible(true)} />}
-      </View>
-      <View style={styles.cardsContainer}>
-        <CardViewer card={cards[0]} back="tcsDark" readyToShow={cards.length > 0} />
-        <CardViewer card={cards[1]} back="tcsDark" readyToShow={cards.length > 0} />
-      </View>
-      <NumberInputModal isVisible={amountModalVisble} onClose={() => setAmountModalVisible(false)} onConfirm={doBet} />
-    </GestureHandlerRootView>
+      <GestureHandlerRootView style={styles.container}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.text}>Player {roomData.playerID} </Text>
+          <Text style={styles.text}>Room code: {roomCode}</Text>
+        </View>
+        <View>
+          {shouldShowWaitText && <Text style={styles.text}> Wait for other players</Text>}
+          {roomData.isAllIn && <Text style={styles.text}> YOU ARE ALL IN! </Text>}
+        </View>
+        {!amountModalVisble ? <ChipsStacks value={amountModalVisble ? 0 : roomData.chips} /> : <View style={{
+          flex: 1,
+          alignItems: 'center',
+        }} />}
+        <MoneyAmount moneyAmount={roomData.chips} />
+        <View style={styles.controll}>
+          {shouldShowActionButtons && <ControllButton title="Fold" onPress={doFold} />}
+          {shouldShowActionButtons && <ControllButton title="Call/Wait" onPress={doWait} />}
+          {shouldShowActionButtons && <ControllButton title="Bet" onPress={() => setAmountModalVisible(true)} />}
+        </View>
+        <View style={styles.cardsContainer}>
+          <CardViewer card={cards[0]} back="tcsDark" readyToShow={cards.length > 0} />
+          <CardViewer card={cards[1]} back="tcsDark" readyToShow={cards.length > 0} />
+        </View>
+        <NumberInputModal isVisible={amountModalVisble} onClose={() => setAmountModalVisible(false)} onConfirm={doBet} />
+      </GestureHandlerRootView>
     </Background>
   </>
   );

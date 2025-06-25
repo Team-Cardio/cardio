@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { PlayerAction, PlayerPayload, PlayerRoomData } from "../types/RoomData";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useToast } from "react-native-toast-notifications";
 
 export function usePlayerConnection(code: string) {
   const wsRef = useRef<Socket>();
@@ -14,20 +15,25 @@ export function usePlayerConnection(code: string) {
     isAllIn: false,
     chips: 0,
     currentBet: 0,
+    currentTableBet: 0,
     cards: [],
   });
+  const toast = useToast();
 
   const savePlayerId = async (playerId: string) => {
     try {
-      await AsyncStorage.setItem('playerId', JSON.stringify({ code, playerId }));
+      await AsyncStorage.setItem(
+        "playerId",
+        JSON.stringify({ code, playerId })
+      );
     } catch (e) {
-      console.error('Failed to save data', e);
+      console.error("Failed to save data", e);
     }
   };
 
   const loadPlayerId = async () => {
     try {
-      const value = await AsyncStorage.getItem('playerId');
+      const value = await AsyncStorage.getItem("playerId");
       if (value !== null) {
         const parsedValue = JSON.parse(value);
         if (code === parsedValue.code) {
@@ -36,11 +42,13 @@ export function usePlayerConnection(code: string) {
       }
       setIsLoaded(true);
     } catch (e) {
-      console.error('Failed to load data', e);
+      console.error("Failed to load data", e);
     }
   };
 
-  useEffect(() => { loadPlayerId() }, []);
+  useEffect(() => {
+    loadPlayerId();
+  }, []);
 
   useEffect(() => {
     const ws = io(`${process.env.EXPO_PUBLIC_API_URL}/ws/game`, {
@@ -53,10 +61,10 @@ export function usePlayerConnection(code: string) {
       console.log(`[WebSocket] Connected ${playerId}`);
 
       if (playerId) {
-        console.log(`join with playerId ${playerId}`)
+        console.log(`join with playerId ${playerId}`);
         ws.emit("join-room", { code, playerId: Number(playerId) });
       } else {
-        console.log(`joined without playerId ${playerId}`)
+        console.log(`joined without playerId ${playerId}`);
         ws.emit("join-room", { code });
       }
     });
@@ -65,7 +73,13 @@ export function usePlayerConnection(code: string) {
       console.log("[WebSocket] Disconnected");
     });
 
-    ws.on("error", (err: unknown) => {
+    ws.on("error", (err: { error: string }) => {
+      toast.show(err.error, {
+        type: "error",
+        placement: "top",
+        duration: 3000,
+        animationType: "slide-in",
+      });
       console.error("[WebSocket] Error:", err);
     });
 
@@ -88,7 +102,7 @@ export function usePlayerConnection(code: string) {
       console.error("[WebSocket] Player ID is undefined");
       return;
     }
-    console.log(action, playerId)
+    console.log(action, playerId);
     wsRef.current?.emit("action", { playerId: Number(playerId), action });
   };
 
@@ -99,6 +113,6 @@ export function usePlayerConnection(code: string) {
   return {
     disconnect,
     emitPlayerAction,
-    roomData
+    roomData,
   };
 }
